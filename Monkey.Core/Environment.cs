@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 namespace Monkey.Core
 {
-    // We call the class Monkey Environment to not get confused by the existing
-    // System.Environment.
+    // We call it MonkeyEnvironment to avoid confusion with System.Environment.
     public class MonkeyEnvironment
     {
         public Dictionary<string, IMonkeyObject> Store { get; set; }
@@ -33,9 +32,9 @@ namespace Monkey.Core
             var ok = Store.TryGetValue(name, out value);
 
             // If the current environment doesn't have a value associated with
-            // the given name, recursively call Get of the enclosing environment
-            // (that the current environment is extending) until either name is
-            // found or we can issue a "ERROR: unknown identifier: foobar"
+            // the name, we recursively call Get on the enclosing environment
+            // (which the current environment is extending) until either name is
+            // found or we can issue a "ERROR: Unknown identifier: foobar"
             // message.
             if (!ok && Outer != null)
             {

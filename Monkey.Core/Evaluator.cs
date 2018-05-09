@@ -5,8 +5,9 @@ namespace Monkey.Core
 {
     public class Evaluator
     {
-        // There's only a need for one instance of these values so optimize by
-        // only create a single instance of each and return those.
+        // There's only ever a need for one instance of these values so as an
+        // optimization we create a single instance of each to return during
+        // evaluation.
         public static MonkeyBoolean True = new MonkeyBoolean { Value = true };
         public static MonkeyBoolean False = new MonkeyBoolean { Value = false };
         public static MonkeyNull Null = new MonkeyNull();
@@ -27,13 +28,12 @@ namespace Monkey.Core
                     var val = Eval(rs.ReturnValue, env);
 
                     // Check for errors whenever Eval is called inside Eval in
-                    // order to stop errors from being passed around and then
+                    // order to stop errors from being passed around and
                     // bubbling up far from their origin.
                     if (IsError(val))
                     {
                         return val;
                     }
-
                     return new MonkeyReturnValue { Value = val };
                 }
                 case LetStatement ls:
@@ -43,7 +43,6 @@ namespace Monkey.Core
                     {
                         return val;
                     }
-
                     return env.Set(ls.Name.Value, val);
                 }
 
@@ -137,7 +136,7 @@ namespace Monkey.Core
             }
         }
 
-        // Helper method used within Evaluator and Builtin which is why it's
+        // Helper used within Evaluator and MonkeyBuiltins which is why it's
         // public and static.
         public static MonkeyError NewError(string message) => new MonkeyError { Message = message };
 
@@ -148,12 +147,11 @@ namespace Monkey.Core
             {
                 result = Eval(stmt, env);
 
-                // Prevents further evaluation if result is the result of
-                // evaluating a return statement. Observe how we don't return
-                // the MReturnValue directly, but unwraps to its value. The
-                // MReturnValue is an internal detail to allow the Eval method
-                // to communicate that is encountered and evaluated a return
-                // statement.
+                // Prevents further evaluation if the result of the evaluation
+                // is a return statement. Note how we don't return MReturnValue
+                // directly, but unwraps its value. The MReturnValue is an
+                // internal detail to allow Eval() to signal to its caller that
+                // it encountered and evaluated a return statement.
                 if (result is MonkeyReturnValue rv)
                 {
                     return rv.Value;
@@ -175,11 +173,11 @@ namespace Monkey.Core
                 var rt = result.Type;
                 if (rt == ObjectType.ReturnValue || rt == ObjectType.Error)
                 {
-                    // Compared to EvalProgram, here we don't unwrap the return
+                    // Compared to EvalProgram()), we don't unwrap the return
                     // value. Instead when an ReturnValueObj is encountered as
-                    // result of evaluating a statement, we return it to
-                    // EvalProgram for unwrapping. This makes evaluation stop in
-                    // a, possibly, outer block statement and bubbles up the
+                    // the result of evaluating a statement, we return it to
+                    // EvalProgram() for unwrapping. This makes evaluation stop
+                    // in a possibly outer block statement and bubbles up the
                     // result.
                     return result;
                 }
@@ -239,12 +237,13 @@ namespace Monkey.Core
             {
                 return EvalStringInfixExpression(op, left, right);
             }
-            // Observe how for booleans we use reference comparison to check for
-            // equality. This works because we're only every using references to
-            // our pre-allocated True and False instances. This would work for
-            // integers, 5 == 5 would be false with reference equals. That's why
-            // the check for integer operands comes first; the integers has to
-            // be unwrapped to compare their values.
+            // Observe how for MonkeyBooleans we use reference comparison to
+            // check for equality. This works only because the references are to
+            // our singleton True and False instances. This wouldn't work for
+            // MonkeyIntegers since those aren't singletons. 5 == 5 would be
+            // false with reference equals. To compare MonkeyIntegers we must
+            // unwrap the integers stored inside the MonkeyIntegers and compare
+            // their values.
             else if (op == "==")
             {
                 return NativeBoolToBooleanObject(left == right);
@@ -367,7 +366,9 @@ namespace Monkey.Core
             var result = new List<IMonkeyObject>();
 
             // Observe how, by definition, the arguments are evaluated left to
-            // right.
+            // right. Since the side effect of evaluating one argument might be
+            // relied on during the evaluation of the next, defining an explicit
+            // evaluation order is important.
             foreach (var e in exps)
             {
                 var evaluated = Eval(e, env);
@@ -415,13 +416,12 @@ namespace Monkey.Core
             // Unwrapping is necessary because otherwise a return statement
             // would bubble up through several functions and stop the evaluation
             // in all of them. We only want to stop the evaluation of the last
-            // called function's body. Otherwise, evalBlockStatement will stop
-            // evaluating statements in the "outer" functions.
+            // called function's body. Otherwise, EvalBlockStatement() would
+            // stop evaluating statements in the "outer" functions.
             if (obj is MonkeyReturnValue rv)
             {
                 return rv.Value;
             }
-
             return obj;
         }
 
@@ -435,7 +435,6 @@ namespace Monkey.Core
             {
                 return EvalHashIndexExpression(left, index);
             }
-
             return NewError($"Index operator not supported {left.Type}");
         }
 
@@ -448,10 +447,9 @@ namespace Monkey.Core
             if (idx < 0 || idx > max)
             {
                 // Some languages throw an exception when the index is out of
-                // bounds. In Monkey we return null as the result.
+                // bounds. In Monkey by definition we return null as the result.
                 return Null;
             }            
-
             return arrayObject.Elements[(int)idx];
         }
 

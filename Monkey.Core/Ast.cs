@@ -177,7 +177,6 @@ namespace Monkey.Core
                     sb.Append("else ");
                     sb.Append(Alternative.String);
                 }                
-
                 return sb.ToString();
             }
         }
@@ -206,7 +205,6 @@ namespace Monkey.Core
                 sb.Append(string.Join(", ", params_));
                 sb.Append(") ");
                 sb.Append(Body.String);
-
                 return sb.ToString();
             }
         }
@@ -234,7 +232,6 @@ namespace Monkey.Core
                 sb.Append("(");
                 sb.Append(string.Join(", ", args));
                 sb.Append(")");
-
                 return sb.ToString();
             }
         }
@@ -268,7 +265,6 @@ namespace Monkey.Core
                 sb.Append("[");
                 sb.Append(string.Join(", ", elements));
                 sb.Append("]");
-
                 return sb.ToString();
             }
         }
@@ -278,7 +274,7 @@ namespace Monkey.Core
     {
         public Token Token { get; set; }
 
-        // The object being accessed and it's an expression because it can be
+        // The object being accessed is an expression because it can be an
         // identifier, an array literal, or a function call.
         public IExpression Left { get; set; }
         public IExpression Index { get; set; }
@@ -293,7 +289,6 @@ namespace Monkey.Core
                 sb.Append("[");
                 sb.Append(Index.String);
                 sb.Append("])");
-
                 return sb.ToString();
             }
         }
@@ -318,8 +313,7 @@ namespace Monkey.Core
 
                 sb.Append("{");
                 sb.Append(string.Join(", ", pairs));
-                sb.Append("}");
-                
+                sb.Append("}");                
                 return sb.ToString();
             }
         }

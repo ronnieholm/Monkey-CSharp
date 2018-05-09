@@ -27,8 +27,9 @@ namespace Monkey.Cli
             WriteLine($"Hello {Environment.UserName}! This is the Monkey programming language!");
             WriteLine("Feel free to type in commands");
 
-            // Environment must survive across input and remain for as long as
-            // the REPL is running. Therefore it's placed outside the loop.
+            // The environment must survive across inputs and remain for as long
+            // as the REPL is running. Otherwise it wouldn't be possible for
+            // variables and functions to survive across inputs.
             var env = new MonkeyEnvironment();
             while (true)
             {

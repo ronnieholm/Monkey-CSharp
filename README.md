@@ -1,24 +1,26 @@
 # MonkeyLang
 
-This repository contains an interpreter for the Monkey dynamic programming
-language from the [Writing an interpreter in Go](https://interpreterbook.com)
-book. The code is closely based on the book and has feature parity with it, but
-is implemented in idiomatic C# and runs on .NET Core.
-
-The complete implementation of the lexer, parser, and evaluator is 2,200 lines
-of code with an additional 1,150 lines of tests. Not a lot for such a capable
-language, implemented entirely without third party libraries.
+This repository contains a C# port of the Monkey programming language from the
+[Writing an interpreter in Go](https://interpreterbook.com) book. Its code
+closely resembles that presented in the book, but written in idiomatic C# for
+the .NET Core runtime. Using the instructions below, the interpreter runs on
+both Windows, Mac, and Linux.
 
 The Monkey parser is a hand written hybrid of a traditional recursive descent
-parser for statements and a Pratt (Top Down Operator Precedence) parser for
-expressions. The hybrid parser ensures efficient parsing while supporting
-operator precedence and associativity. The parser outputs an abstract syntax
-tree which the tree walking evaluator traverses as part of executing the Monkey
-program.
+parser for statements and a Pratt (also known as Top Down Operator Precedence)
+parser for expressions. The hybrid parser ensures efficient parsing while
+supporting operator precedence and associativity. Its outputs is an abstract
+syntax tree which the tree walking evaluator traverses as part of executing a
+Monkey program.
+
+The complete implementation of the lexer, parser, and evaluator consists of
+2,200 lines of code with an additional 1,150 lines of tests. Not a lot of code
+for such a capable interpreter, implemented entirely without third party
+libraries.
 
 ## Features
 
-The Monkey interpreter supports mathematical expressions, variable bindings,
+The Monkey language supports mathematical expressions, variable bindings,
 functions and the application of those functions, conditionals, return
 statements, and advanced concepts such as higher-order functions and closures.
 The data types supported are integers, booleans, strings, arrays, and hashes.
@@ -26,7 +28,7 @@ The data types supported are integers, booleans, strings, arrays, and hashes.
 ## Examples
 
 See the [official](https://interpreterbook.com) homepage. Navigate to "The
-Monkey Programming Language" section for examples and browse through the Tests
+Monkey Programming Language" section for examples and browse through the tests
 in this repository.
 
 ## Getting started
@@ -47,6 +49,6 @@ in this repository.
 - [A recursive descent parser with an infix expression evaluator](https://eli.thegreenplace.net/2009/03/20/a-recursive-descent-parser-with-an-infix-expression-evaluator) by Eli Bendersky.
 - [Parsing expressions by precedence climbing](https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing.html) by Eli Bendersky.
 - [Practical explanation and example of Pratt parser](http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy) by Bob Nystrom.
-- [GoRuby](https://github.com/goruby/goruby) by (Michael
-  Wagner)[https://twitter.com/mitch000001] extends the concepts, structures, and
+- [GoRuby](https://github.com/goruby/goruby) by [Michael
+  Wagner](https://twitter.com/mitch000001) extends the concepts, structures, and
   code of Monkey to Ruby.

@@ -66,13 +66,14 @@ namespace Monkey.Core
     {
         string _input;
 
-        // Position in input where we last read.
+        // Position in input from where we last read a character.
         int _position;
 
-        // Position in input where we're going to read from next.
+        // Position in input from where we're going to read a character from
+        // next.
         int _readPosition;
 
-        // Char under examination.
+        // Character under examination.
         char _ch;
 
         Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>
@@ -182,8 +183,8 @@ namespace Monkey.Core
                         tok = new Token(type, ident);
 
                         // Early return is necessary because when calling
-                        // ReadIdentifier we call ReadChar repeatedly and
-                        // advance readPosition and position past the last
+                        // ReadIdentifier() we call ReadChar() repeatedly,
+                        // advancing _readPosition and _position past the last
                         // character of the current identifier. So we don't need
                         // to call NextToken after the switch again.
                         return tok;
@@ -271,9 +272,9 @@ namespace Monkey.Core
         {
             var position = _position + 1;
 
-            // BUG: Passing a string not terminated by " cases an infinite loop
-            // because even though we've reached the end of input, the "
-            // characters hasn't been reached.
+            // BUG: Passing a string which isn't terminated by " cases an
+            // infinite loop because even though we've reached the end of input,
+            // the " characters hasn't been reached.
             do
             {
                 ReadChar();

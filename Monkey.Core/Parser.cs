@@ -6,11 +6,11 @@ namespace Monkey.Core
     using PrefixParseFn = Func<IExpression>;
     using InfixParseFn = Func<IExpression, IExpression>;
 
-    // To see output written to stdout, either run the tests from the command
-    // line with "dotnet test Monkey.Tests", use the xUnit GUI runner, or in
-    // VSCode run tests through the .NET Test Explorer plugin. When running
-    // individual tests within the VSCode editor window by clicking "run test"
-    // or "debug test", stdout isn't redirected to the Output tab.
+    // In order to view output written to stdout, either run the tests from the
+    // command line with "dotnet test Monkey.Tests", use the xUnit GUI runner,
+    // or in VSCode run tests through the .NET Test Explorer plugin. Running
+    // tests from within the VSCode editor's "run test" or "debug test" links,
+    // stdout isn't redirected to the VSCode's Output tab.
     public class ParserTracer
     {
         const char TraceIdentPlaceholder = '\t';
@@ -49,18 +49,19 @@ namespace Monkey.Core
     {
         Lexer _lexer;
 
-        // For visualizing and debugging the top-down operator precedence
-        // expression parser for Monkey expressions.
+        // For visualizing and debugging the Pratt expression parser for Monkey
+        // expressions.
         ParserTracer _tracer;
 
-        // Acts like position and peekPosition within the lexer, but instead of
+        // Acts like _position and PeekChar within the lexer, but instead of
         // pointing to a character in the input they point to the current and
         // next tokens. We need to look at _curToken, the current token under
-        // examination, to decide what to do next, and we need this _peekToken
-        // for this decision if _curToken doesn't provide us with enough
+        // examination, to decide what to do next, and we need _peekToken to
+        // guide the decision in case _curToken doesn't provide us with enough
         // information, e.g., with the input "5;", then _curToken is Int and we
-        // need _peekToken to decide if where're at the end of the line or if
-        // we're at the start of an arithmetic expression.
+        // require _peekToken to decide if where're at the end of the line or if
+        // we're at the start of an arithmetic expression. In effect, this
+        // implements a parser with one token lookahead.
         Token _curToken;
         Token _peekToken;
 
@@ -70,10 +71,14 @@ namespace Monkey.Core
         Dictionary<TokenType, PrefixParseFn> _prefixParseFns;
         Dictionary<TokenType, InfixParseFn> _infixParseFns;
 
-        // Actual numbers doesn't matter, but the order and the relation to each
-        // other do. We want to be able to answer questions such as whether
-        // operator * has higher precedence than operator ==.
-        // TODO: Convert to class with constants to make debugging easier?
+        // Actual numeric numbers doesn't matter, but the order and the relation
+        // to each other does. We want to be able to answer questions such as
+        // whether operator * has higher precedence than operator ==. While
+        // using an enum over a class with integer constants alliviates the need
+        // to explicitly assign a value to each member, it making debugging the
+        // Pratt parser slightly more difficult. During precedence value
+        // comparisons, the debugger will show the strings over their its
+        // implicit number.
         enum PrecedenceValue
         {
             None = 0,
@@ -87,8 +92,9 @@ namespace Monkey.Core
             Index           // array[index]
         }
 
-        // Table associating the type of token with its precedens value.
-        // Observer how not every precedence value is present.
+        // Table associating the type of token with its precedens value. Observe
+        // how not every precedence value is present and some are present more
+        // than once.
         Dictionary<TokenType, PrecedenceValue> precedences = new Dictionary<TokenType, PrecedenceValue>
         {
             { TokenType.Eq, PrecedenceValue.Equals },
@@ -157,7 +163,6 @@ namespace Monkey.Core
                 }
                 NextToken();
             }
-
             return p;
         }
 
@@ -218,7 +223,6 @@ namespace Monkey.Core
             {
                 NextToken();
             }
-
             return stmt;
         }
 
@@ -236,7 +240,6 @@ namespace Monkey.Core
                 NextToken();
             }
             _tracer.Untrace("ParseExpressionStatement");
-
             return stmt;
         }
 
@@ -252,12 +255,12 @@ namespace Monkey.Core
             }
             var leftExpr = prefix();
 
-            // precedence is right-binding power and PeekPrecedecne is
-            // left-binding power of the current operator being passed. For as
-            // long as left-binding power > right-binding power, we're going to
-            // add another level to the syntax three, signifying operations
-            // which need to be carried out first in the evaluation of the
-            // expression.
+            // The precedence is what the original Pratt paper refers to as
+            // right-binding power and PeekPrecedence() is what it refers to as
+            // left-binding power. For as long as left-binding power >
+            // right-binding power, we're going to add another level to the
+            // Abstract Syntax Three, signifying operations which need to be
+            // carried out first when the expression is evaluated.
             while (!PeekTokenIs(TokenType.Semicolon) && precedence < PeekPrecedence())
             {
                 InfixParseFn infix;
@@ -363,16 +366,16 @@ namespace Monkey.Core
             expr.Index = ParseExpression(PrecedenceValue.Lowest);
 
             // BUG: Attempting to parse "{}[""foo""" with a missing ] causes
-            // null to be returned. The null is passed to Eval for evaluation
-            // and since no node type is defined for null, we end up in the
-            // default case which throws an Exception, but in the process thrown
-            // a NullReferenceException because node in "throw new
-            // Exception($"Invalid node type: {node.GetType()}");" is null.
+            // null to be returned. The null is passed to Eval() for evaluation
+            // but since no node type is defined for null, we end up in Eval()'s
+            // default case which throws an Exception. In the process of
+            // throwing this exception it itself throws a NullReferenceException
+            // because node in "throw new Exception($"Invalid node type:
+            // {node.GetType()}");" is null.
             if (!ExpectPeek(TokenType.RBracket))
             {
                 return null;
             }
-
             return expr;
         }
 
@@ -428,7 +431,7 @@ namespace Monkey.Core
 
             NextToken();
 
-            // BUG: If } is missing from the program, this code goes into an
+            // BUG: If '}' is missing from the program, this code goes into an
             // infinite loop.
             while (!CurTokenIs(TokenType.RBrace))
             {
@@ -439,7 +442,6 @@ namespace Monkey.Core
                 }
                 NextToken();
             }
-
             return block;
         }
 
@@ -504,8 +506,8 @@ namespace Monkey.Core
             return array;
         }
 
-        // Similar to ParseFunctionParameters expect that it's more generic and
-        // returns a list of expression rather than a list of identifiers.
+        // Similar to ParseFunctionParameters() expect that it's more generic
+        // and returns a list of expression rather than a list of identifiers.
         private List<IExpression> ParseExpressionList(TokenType end)
         {
             var list = new List<IExpression>();
@@ -534,9 +536,6 @@ namespace Monkey.Core
             return list;
         }
 
-        // TODO: Causes infinite loop:
-        // { "name: "Monkey", "age": 0, "type": "Language", "Status": "awsome"}
-        // probably a bug in the string parser where it doesn't properly NewError on missing ". Check token stream for missing " also.
         private IExpression ParseHashLiteral()
         {
             var hash = new HashLiteral { Token = _curToken, Pairs = new Dictionary<IExpression, IExpression>() };
@@ -574,7 +573,7 @@ namespace Monkey.Core
             PrecedenceValue pv;
             var ok = precedences.TryGetValue(_peekToken.Type, out pv);
 
-            // Returning Lowest when precedence cannot be found for token is
+            // Returning Lowest when precedence cannot be found for a token is
             // what enables us to parse for instance grouped expression. The
             // RParen doesn't have an associated precedence, so when Lowest is
             // returned it causes the parser to finish evaluating a
