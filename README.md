@@ -6,12 +6,12 @@ closely resembles that presented in the book, but written in idiomatic C# for
 the .NET Core runtime. Using the instructions below, the interpreter runs on
 both Windows, Mac, and Linux.
 
-The Monkey parser is a hand written hybrid of a traditional recursive descent
-parser for statements and a Pratt (also known as Top Down Operator Precedence)
-parser for expressions. The hybrid parser ensures efficient parsing while
-supporting operator precedence and associativity. Its outputs is an abstract
-syntax tree which the tree walking evaluator traverses as part of executing a
-Monkey program.
+The Monkey parser is an hand-written LL(1) hybrid of a traditional recursive
+descent parser for statements and a Pratt, also known as Top Down Operator
+Precedence, parser for expressions. The hybrid parser ensures efficient parsing
+while supporting operator precedence and associativity. Its outputs is an
+abstract syntax tree which the tree walking evaluator traverses as part of
+executing a Monkey program.
 
 The complete implementation of the lexer, parser, and evaluator consists of
 2,200 lines of code with an additional 1,150 lines of tests. Not a lot of code

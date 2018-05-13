@@ -79,7 +79,7 @@ namespace Monkey.Core
         // Pratt parser slightly more difficult. During precedence value
         // comparisons, the debugger will show the strings over their its
         // implicit number.
-        enum PrecedenceValue
+        enum PrecedenceLevel
         {
             None = 0,
             Lowest,
@@ -92,21 +92,25 @@ namespace Monkey.Core
             Index           // array[index]
         }
 
-        // Table associating the type of token with its precedens value. Observe
-        // how not every precedence value is present and some are present more
-        // than once.
-        Dictionary<TokenType, PrecedenceValue> precedences = new Dictionary<TokenType, PrecedenceValue>
+        // Table of precedence associated with token. Observe how not every
+        // precedence value is present (Lowest and Prefix missing) and some are
+        // levels are appear more than once (LessGreater, Sum, Product). Lowest
+        // serves as a starting precedence for the Pratt parser while Prefix
+        // isn't associated with a token but an expression as a whole. On the
+        // other hand, some operators, such as multiplication and division,
+        // share the same precedence level.
+        Dictionary<TokenType, PrecedenceLevel> precedences = new Dictionary<TokenType, PrecedenceLevel>
         {
-            { TokenType.Eq, PrecedenceValue.Equals },
-            { TokenType.NotEq, PrecedenceValue.Equals },
-            { TokenType.Lt, PrecedenceValue.LessGreater },
-            { TokenType.Gt, PrecedenceValue.LessGreater },
-            { TokenType.Plus, PrecedenceValue.Sum },
-            { TokenType.Minus, PrecedenceValue.Sum },
-            { TokenType.Slash, PrecedenceValue.Product },
-            { TokenType.Asterisk, PrecedenceValue.Product },
-            { TokenType.LParen, PrecedenceValue.Call },
-            { TokenType.LBracket, PrecedenceValue.Index }            
+            { TokenType.Eq, PrecedenceLevel.Equals },
+            { TokenType.NotEq, PrecedenceLevel.Equals },
+            { TokenType.Lt, PrecedenceLevel.LessGreater },
+            { TokenType.Gt, PrecedenceLevel.LessGreater },
+            { TokenType.Plus, PrecedenceLevel.Sum },
+            { TokenType.Minus, PrecedenceLevel.Sum },
+            { TokenType.Slash, PrecedenceLevel.Product },
+            { TokenType.Asterisk, PrecedenceLevel.Product },
+            { TokenType.LParen, PrecedenceLevel.Call },
+            { TokenType.LBracket, PrecedenceLevel.Index }            
         };
 
         private void RegisterPrefix(TokenType t, PrefixParseFn fn) => _prefixParseFns.Add(t, fn);
@@ -203,7 +207,7 @@ namespace Monkey.Core
             }
 
             NextToken();
-            stmt.Value = ParseExpression(PrecedenceValue.Lowest);
+            stmt.Value = ParseExpression(PrecedenceLevel.Lowest);
             if (PeekTokenIs(TokenType.Semicolon))
             {
                 NextToken();
@@ -217,7 +221,7 @@ namespace Monkey.Core
             var stmt = new ReturnStatement() { Token = _curToken };
 
             NextToken();
-            stmt.ReturnValue = ParseExpression(PrecedenceValue.Lowest);
+            stmt.ReturnValue = ParseExpression(PrecedenceLevel.Lowest);
 
             if (PeekTokenIs(TokenType.Semicolon))
             {
@@ -232,7 +236,7 @@ namespace Monkey.Core
             var stmt = new ExpressionStatement { Token = _curToken };
 
             // Pass in lowest precedence since we haven't parsed anything yet.
-            stmt.Expression = ParseExpression(PrecedenceValue.Lowest);
+            stmt.Expression = ParseExpression(PrecedenceLevel.Lowest);
 
             // Expression statements end with optional simicolon.
             if (PeekTokenIs(TokenType.Semicolon))
@@ -243,7 +247,7 @@ namespace Monkey.Core
             return stmt;
         }
 
-        private IExpression ParseExpression(PrecedenceValue precedence)
+        private IExpression ParseExpression(PrecedenceLevel precedence)
         {
             _tracer.Trace("ParseExpression");
             PrefixParseFn prefix;
@@ -330,7 +334,7 @@ namespace Monkey.Core
             _tracer.Trace("ParsePrefixExpression");
             var expr = new PrefixExpression { Token = _curToken, Operator = _curToken.Literal };
             NextToken();
-            expr.Right = ParseExpression(PrecedenceValue.Prefix);
+            expr.Right = ParseExpression(PrecedenceLevel.Prefix);
             _tracer.Untrace("ParsePrefixExpression");
             return expr;
         }
@@ -363,7 +367,7 @@ namespace Monkey.Core
             var expr = new IndexExpression { Token = _curToken, Left = left };
 
             NextToken();
-            expr.Index = ParseExpression(PrecedenceValue.Lowest);
+            expr.Index = ParseExpression(PrecedenceLevel.Lowest);
 
             // BUG: Attempting to parse "{}[""foo""" with a missing ] causes
             // null to be returned. The null is passed to Eval() for evaluation
@@ -382,7 +386,7 @@ namespace Monkey.Core
         private IExpression ParseGroupedExpression()
         {
             NextToken();
-            var expr = ParseExpression(PrecedenceValue.Lowest);
+            var expr = ParseExpression(PrecedenceLevel.Lowest);
             return !ExpectPeek(TokenType.RParen) ? null : expr;
         }
 
@@ -396,7 +400,7 @@ namespace Monkey.Core
             }
 
             NextToken();
-            expression.Condition = ParseExpression(PrecedenceValue.Lowest);
+            expression.Condition = ParseExpression(PrecedenceLevel.Lowest);
 
             if (!ExpectPeek(TokenType.RParen))
             {
@@ -519,13 +523,13 @@ namespace Monkey.Core
             }
 
             NextToken();
-            list.Add(ParseExpression(PrecedenceValue.Lowest));
+            list.Add(ParseExpression(PrecedenceLevel.Lowest));
 
             while (PeekTokenIs(TokenType.Comma))
             {
                 NextToken();
                 NextToken();
-                list.Add(ParseExpression(PrecedenceValue.Lowest));
+                list.Add(ParseExpression(PrecedenceLevel.Lowest));
             }
 
             if (!ExpectPeek(end))
@@ -543,7 +547,7 @@ namespace Monkey.Core
             while (!PeekTokenIs(TokenType.RBrace))
             {
                 NextToken();
-                var key = ParseExpression(PrecedenceValue.Lowest);
+                var key = ParseExpression(PrecedenceLevel.Lowest);
 
                 if (!ExpectPeek(TokenType.Colon))
                 {
@@ -551,7 +555,7 @@ namespace Monkey.Core
                 }
 
                 NextToken();
-                var value = ParseExpression(PrecedenceValue.Lowest);
+                var value = ParseExpression(PrecedenceLevel.Lowest);
                 hash.Pairs.Add(key, value);
 
                 if (!PeekTokenIs(TokenType.RBrace) && !ExpectPeek(TokenType.Comma))
@@ -568,9 +572,9 @@ namespace Monkey.Core
             return hash;
         }
 
-        private PrecedenceValue PeekPrecedence()
+        private PrecedenceLevel PeekPrecedence()
         {
-            PrecedenceValue pv;
+            PrecedenceLevel pv;
             var ok = precedences.TryGetValue(_peekToken.Type, out pv);
 
             // Returning Lowest when precedence cannot be found for a token is
@@ -578,14 +582,14 @@ namespace Monkey.Core
             // RParen doesn't have an associated precedence, so when Lowest is
             // returned it causes the parser to finish evaluating a
             // subexpression as a whole.
-            return ok ? pv : PrecedenceValue.Lowest;
+            return ok ? pv : PrecedenceLevel.Lowest;
         }
 
-        private PrecedenceValue CurPrecedence()
+        private PrecedenceLevel CurPrecedence()
         {
-            PrecedenceValue pv;
+            PrecedenceLevel pv;
             var ok = precedences.TryGetValue(_curToken.Type, out pv);
-            return ok ? pv : PrecedenceValue.Lowest;
+            return ok ? pv : PrecedenceLevel.Lowest;
         }
     }
 }
