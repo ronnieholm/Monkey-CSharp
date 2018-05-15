@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 
+// Tip: Setting a breakpoint in one of the parsing methods and inspecting the
+// call stack when its hit, will effectively show the Abstract Syntax Tree at
+// that point during parsing.
+
 namespace Monkey.Core
 {
     using PrefixParseFn = Func<IExpression>;
