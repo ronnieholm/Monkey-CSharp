@@ -1,4 +1,4 @@
-# MonkeyLang
+# Monkey-CSharp
 
 This repository contains a C# port of the Monkey programming language from the
 [Writing an interpreter in Go](https://interpreterbook.com) book. Its code
