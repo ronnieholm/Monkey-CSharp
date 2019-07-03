@@ -33,8 +33,8 @@ in this repository.
 
 ## Getting started
 
-    $ git clone https://github.com/ronnieholm/MonkeyLang.git
-    $ cd MonkeyLang
+    $ git clone https://github.com/ronnieholm/Monkey-CSharp.git
+    $ cd Monkey-CSharp
     $ dotnet build
     $ dotnet test Monkey.Tests
     $ dotnet run -p Monkey.Cli
