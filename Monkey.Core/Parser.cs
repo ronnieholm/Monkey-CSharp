@@ -27,15 +27,10 @@ namespace Monkey.Core
         void TracePrint(string message) 
         {
             if (_withTracing)
-            {
                 Console.WriteLine($"{IdentLevel()}{message}");
-            }
         }
 
-        public ParserTracer(bool withTracing)
-        {
-            _withTracing = withTracing;
-        }
+        public ParserTracer(bool withTracing) => _withTracing = withTracing;
 
         public void Trace(string message)
         {
@@ -166,9 +161,7 @@ namespace Monkey.Core
             {
                 var s = ParseStatement();
                 if (s != null)
-                {
                     p.Statements.Add(s);
-                }
                 NextToken();
             }
             return p;
@@ -200,15 +193,11 @@ namespace Monkey.Core
         {
             var stmt = new LetStatement() { Token = _curToken };
             if (!ExpectPeek(TokenType.Ident))
-            {
                 return null;
-            }
 
             stmt.Name = new Identifier() { Token = _curToken, Value = _curToken.Literal };
             if (!ExpectPeek(TokenType.Assign))
-            {
                 return null;
-            }
 
             NextToken();
             stmt.Value = ParseExpression(PrecedenceLevel.Lowest);
@@ -228,9 +217,7 @@ namespace Monkey.Core
             stmt.ReturnValue = ParseExpression(PrecedenceLevel.Lowest);
 
             if (PeekTokenIs(TokenType.Semicolon))
-            {
                 NextToken();
-            }
             return stmt;
         }
 
@@ -274,9 +261,8 @@ namespace Monkey.Core
                 InfixParseFn infix;
                 ok = _infixParseFns.TryGetValue(_peekToken.Type, out infix);
                 if (!ok)
-                {
                     return leftExpr;
-                }
+
                 NextToken();
                 leftExpr = infix(leftExpr);
             }
@@ -301,15 +287,11 @@ namespace Monkey.Core
             return false;
         }
 
-        private void PeekError(TokenType t)
-        {
+        private void PeekError(TokenType t) =>
             Errors.Add($"Expected next token to be {t}, got {_peekToken.Type} instead.");
-        }
 
-        private IExpression ParseIdentifier()
-        {
-            return new Identifier { Token = _curToken, Value = _curToken.Literal };
-        }
+        private IExpression ParseIdentifier() =>
+            new Identifier { Token = _curToken, Value = _curToken.Literal };
 
         private IExpression ParseIntegerLiteral()
         {
@@ -328,10 +310,8 @@ namespace Monkey.Core
             return lit;
         }
 
-        private IExpression ParseBoolean()
-        {
-            return new Boolean_ { Token = _curToken, Value = CurTokenIs(TokenType.True) };
-        }
+        private IExpression ParseBoolean() =>
+            new Boolean_ { Token = _curToken, Value = CurTokenIs(TokenType.True) };
 
         private IExpression ParsePrefixExpression()
         {
@@ -343,10 +323,8 @@ namespace Monkey.Core
             return expr;
         }
 
-        private void NoPrefixParseFnError(TokenType type)
-        {
+        private void NoPrefixParseFnError(TokenType type) =>
             Errors.Add($"No prefix parse function for {type} found");
-        }
 
         private IExpression ParseInfixExpression(IExpression left)
         {
@@ -381,9 +359,7 @@ namespace Monkey.Core
             // because node in "throw new Exception($"Invalid node type:
             // {node.GetType()}");" is null.
             if (!ExpectPeek(TokenType.RBracket))
-            {
                 return null;
-            }
             return expr;
         }
 
@@ -399,22 +375,16 @@ namespace Monkey.Core
             var expression = new IfExpression { Token = _curToken };
 
             if (!ExpectPeek(TokenType.LParen))
-            {
                 return null;
-            }
 
             NextToken();
             expression.Condition = ParseExpression(PrecedenceLevel.Lowest);
 
             if (!ExpectPeek(TokenType.RParen))
-            {
                 return null;
-            }
 
             if (!ExpectPeek(TokenType.LBrace))
-            {
                 return null;
-            }
 
             expression.Consequence = ParseBlockStatement();
 
@@ -422,9 +392,7 @@ namespace Monkey.Core
             {
                 NextToken();
                 if (!ExpectPeek(TokenType.LBrace))
-                {
                     return null;
-                }
 
                 expression.Alternative = ParseBlockStatement();
             }
@@ -445,9 +413,7 @@ namespace Monkey.Core
             {
                 var stmt = ParseStatement();
                 if (stmt != null)
-                {
                     block.Statements.Add(stmt);
-                }
                 NextToken();
             }
             return block;
@@ -458,16 +424,12 @@ namespace Monkey.Core
             var lit = new FunctionLiteral { Token = _curToken };
 
             if (!ExpectPeek(TokenType.LParen))
-            {
                 return null;
-            }
 
             lit.Parameters = ParseFunctionParameters();
 
             if (!ExpectPeek(TokenType.LBrace))
-            {
                 return null;
-            }
 
             lit.Body = ParseBlockStatement();
             return lit;
@@ -495,17 +457,13 @@ namespace Monkey.Core
             }
 
             if (!ExpectPeek(TokenType.RParen))
-            {
                 return null;
-            }
 
             return identifiers;
         }
 
-        private IExpression ParseStringLiteral()
-        {
-            return new StringLiteral { Token = _curToken, Value = _curToken.Literal };
-        }
+        private IExpression ParseStringLiteral() =>
+            new StringLiteral { Token = _curToken, Value = _curToken.Literal };
 
         private IExpression ParseArrayLiteral()
         {
@@ -537,9 +495,7 @@ namespace Monkey.Core
             }
 
             if (!ExpectPeek(end))
-            {
                 return null;
-            }
 
             return list;
         }
@@ -563,15 +519,11 @@ namespace Monkey.Core
                 hash.Pairs.Add(key, value);
 
                 if (!PeekTokenIs(TokenType.RBrace) && !ExpectPeek(TokenType.Comma))
-                {
                     return null;
-                }
             }
 
             if (!ExpectPeek(TokenType.RBrace))
-            {
                 return null;
-            }
 
             return hash;
         }

@@ -258,9 +258,7 @@ namespace Monkey.Core
                 var elements = new List<string>();
 
                 foreach (var e in Elements)
-                {
                     elements.Add(e.String);
-                }
 
                 sb.Append("[");
                 sb.Append(string.Join(", ", elements));
@@ -307,9 +305,7 @@ namespace Monkey.Core
                 var pairs = new List<string>();
                 
                 foreach (var kv in Pairs)
-                {
                     pairs.Add($"{kv.Key.String}:{kv.Value.String}");
-                }
 
                 sb.Append("{");
                 sb.Append(string.Join(", ", pairs));

@@ -56,10 +56,7 @@ namespace Monkey.Core
             Literal = literal;
         }
 
-        public override string ToString()
-        {
-            return $"({Type},{Literal})";
-        }
+        public override string ToString() => $"({Type},{Literal})";
     }
 
     public class Lexer
@@ -108,9 +105,7 @@ namespace Monkey.Core
                         tok = new Token(TokenType.Eq, c + _ch.ToString());
                     }
                     else
-                    {
                         tok = new Token(TokenType.Assign, _ch.ToString());
-                    }
                     break;
                 case '+':
                     tok = new Token(TokenType.Plus, _ch.ToString());
@@ -126,9 +121,7 @@ namespace Monkey.Core
                         tok = new Token(TokenType.NotEq, c + _ch.ToString());
                     }
                     else
-                    {
                         tok = new Token(TokenType.Bang, _ch.ToString());
-                    }
                     break;
                 case '/':
                     tok = new Token(TokenType.Slash, _ch.ToString());
@@ -234,9 +227,7 @@ namespace Monkey.Core
         {
             var p = _position;
             while (IsLetter(_ch))
-            {
                 ReadChar();
-            }
             return _input.Substring(p, _position - p);
         }
 
@@ -244,29 +235,21 @@ namespace Monkey.Core
         {
             var p = _position;
             while (IsDigit(_ch))
-            {
                 ReadChar();
-            }
             return _input.Substring(p, _position - p);
         }
 
-        private bool IsLetter(char ch)
-        {
-            return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_';
-        }
+        private bool IsLetter(char ch) =>
+            'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_';
 
         private void SkipWhitespace()
         {
             while (_ch == ' ' || _ch == '\t' || _ch == '\n' || _ch == '\r')
-            {
                 ReadChar();
-            }
         }
 
-        private bool IsDigit(char ch)
-        {
-            return '0' <= ch && ch <= '9';
-        }
+        private bool IsDigit(char ch) =>
+            '0' <= ch && ch <= '9';
 
         private string ReadString()
         {

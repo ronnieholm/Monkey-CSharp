@@ -245,9 +245,7 @@ namespace Monkey.Tests
             Assert.Equal(expected.Length, function.Parameters.Count);
 
             for (var i = 0; i < expected.Length; i++)
-            {
                 TestLiteralExpression(function.Parameters[i], expected[i]);
-            }
         }
 
         [Theory]
@@ -283,9 +281,7 @@ namespace Monkey.Tests
             Assert.Equal(expectedArgs.Length, expr.Arguments.Count);
 
             for (var i = 0; i < expectedArgs.Length; i++)
-            {
                 Assert.Equal(expectedArgs[i], expr.Arguments[i].String);
-            }
         }
 
         [Theory]
@@ -411,21 +407,13 @@ namespace Monkey.Tests
         private void TestLiteralExpression(IExpression expr, Object expected)
         {
             if (expected is long i)
-            {
                 TestIntegerLiteral(expr, i);
-            }
             else if (expected is string s)
-            {
                 TestIdentifier(expr, s);
-            }
             else if (expected is bool b)
-            {
                 TestBooleanLiteral(expr, b);
-            }
             else
-            {
                 throw new Exception($"Unsupported type: {expected.GetType()}");
-            }
         }
 
         private void TestInfixExpression(IExpression expr, Object left, string op, Object right)
@@ -457,15 +445,11 @@ namespace Monkey.Tests
         private void CheckParserErrors(Parser p)
         {
             if (p.Errors.Count == 0)
-            {
                 return;
-            }
 
             var s = "";
             foreach (var e in p.Errors)
-            {
                 s += e + "\n";
-            }
 
             throw new Exception($"Parser encountered {p.Errors.Count} errors\n{s}");
         }

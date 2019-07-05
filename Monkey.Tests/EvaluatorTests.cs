@@ -86,13 +86,9 @@ namespace Monkey.Tests
         {
             var evaluated = TestEval(input);
             if (expected == null)
-            {
                 TestNullObject(evaluated);
-            }
             else
-            {
                 TestIntegerObject(evaluated, (long)expected);
-            }
         }
 
         [Theory]
@@ -251,15 +247,11 @@ namespace Monkey.Tests
             var evaluated = TestEval(input);
 
             if (expected is int i)
-            {
                 TestIntegerObject(evaluated, (long)expected);
-            }
             else if (expected is string s)
             {
                 if (evaluated is MonkeyError e)
-                {
                     Assert.Equal(s, e.Message);
-                }
             }
             else if (expected is null)
             {
@@ -273,9 +265,7 @@ namespace Monkey.Tests
                 Assert.Equal(a.Length, array.Elements.Count);
 
                 for (var idx = 0; idx < a.Length; idx++)
-                {
                     TestIntegerObject(array.Elements[idx], (long)(a[idx]));
-                }
             }
         }
 
@@ -310,13 +300,9 @@ namespace Monkey.Tests
             var evaluated = TestEval(input);
 
             if (expected is long l)
-            {
                 TestIntegerObject(evaluated, l);
-            }
             else
-            {
                 TestNullObject(evaluated);
-            }            
         }
 
         [Fact]
@@ -369,13 +355,9 @@ namespace Monkey.Tests
             var evaluated = TestEval(input);
             
             if (expected is long l)
-            {
                 TestIntegerObject(evaluated, l);
-            }
             else
-            {
                 TestNullObject(evaluated);
-            }
         }
 
         private void TestNullObject(IMonkeyObject obj) => Assert.Equal(Evaluator.Null, obj);

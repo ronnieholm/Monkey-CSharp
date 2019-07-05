@@ -69,10 +69,8 @@ namespace Monkey.Core
         public long Value { get; set; }
         public string Inspect() => Value.ToString();
 
-        public HashKey HashKey()
-        {
-            return new HashKey { Type = Type, Value = (ulong)Value };
-        }
+        public HashKey HashKey() =>
+            new HashKey { Type = Type, Value = (ulong)Value };
     }
 
     public class MonkeyBoolean : IMonkeyObject, IHashable
@@ -131,9 +129,7 @@ namespace Monkey.Core
             var sb = new StringBuilder();
             var parameters = new List<string>();
             foreach (var p in Parameters)
-            {
                 parameters.Add(p.String);                
-            }
 
             sb.Append("fn");
             sb.Append("(");
@@ -179,9 +175,7 @@ namespace Monkey.Core
             var elements = new List<string>();
 
             foreach (var e in Elements)
-            {
                 elements.Add(e.Inspect());
-            }
 
             sb.Append("[");
             sb.Append(string.Join(", ", elements));
@@ -208,9 +202,7 @@ namespace Monkey.Core
             var pairs = new List<string>();
 
             foreach (var kv in Pairs)
-            {
                 pairs.Add($"{kv.Value.Key.Inspect()}: {kv.Value.Value.Inspect()}");
-            }
 
             sb.Append("{");
             sb.Append(string.Join(", ", pairs));

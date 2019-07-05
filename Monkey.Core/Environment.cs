@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Monkey.Core
@@ -9,15 +8,11 @@ namespace Monkey.Core
         public Dictionary<string, IMonkeyObject> Store { get; set; }
         public MonkeyEnvironment Outer { get; set; }
 
-        public MonkeyEnvironment()
-        {
+        public MonkeyEnvironment() => 
             Store = new Dictionary<string, IMonkeyObject>();
-        }
 
-        public static MonkeyEnvironment NewEnvironment()
-        {
-            return new MonkeyEnvironment { Store = new Dictionary<string, IMonkeyObject>(), Outer = null };
-        }
+        public static MonkeyEnvironment NewEnvironment() =>
+            new MonkeyEnvironment { Store = new Dictionary<string, IMonkeyObject>(), Outer = null };
 
         public static MonkeyEnvironment NewEnclosedEnvironment(MonkeyEnvironment outer)
         {
@@ -37,9 +32,7 @@ namespace Monkey.Core
             // found or we can issue a "ERROR: Unknown identifier: foobar"
             // message.
             if (!ok && Outer != null)
-            {
                 return Outer.Get(name);
-            }
 
             return (value, ok);
         }

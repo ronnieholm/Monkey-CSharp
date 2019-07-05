@@ -47,9 +47,7 @@ namespace Monkey.Cli
                 
                 var evaluated = Evaluator.Eval(program, env);
                 if (evaluated != null)
-                {
                     WriteLine(evaluated.Inspect());
-                }
             }
         }
 
@@ -59,9 +57,7 @@ namespace Monkey.Cli
             WriteLine("Woops! We ran into some monkey business here!");
             WriteLine(" Parser errors");
             foreach (var msg in errors)
-            {
                 WriteLine($"\t{msg}\n");
-            }
         }
     }
 }
