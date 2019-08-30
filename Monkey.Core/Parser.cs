@@ -223,13 +223,13 @@ namespace Monkey.Core
 
         private ExpressionStatement ParseExpressionStatement()
         {
-            _tracer.Trace("ParseExpressionStatement");
+            _tracer.Trace(nameof(ParseExpressionStatement));
             var stmt = new ExpressionStatement { Token = _curToken };
 
             // Pass in lowest precedence since we haven't parsed anything yet.
             stmt.Expression = ParseExpression(PrecedenceLevel.Lowest);
 
-            // Expression statements end with optional simicolon.
+            // Expression statements end with optional semicolon.
             if (PeekTokenIs(TokenType.Semicolon))
             {
                 NextToken();
@@ -240,7 +240,7 @@ namespace Monkey.Core
 
         private IExpression ParseExpression(PrecedenceLevel precedence)
         {
-            _tracer.Trace("ParseExpression");
+            _tracer.Trace(nameof(ParseExpression));
             PrefixParseFn prefix;
             var ok = _prefixParseFns.TryGetValue(_curToken.Type, out prefix);
             if (!ok)
@@ -295,7 +295,7 @@ namespace Monkey.Core
 
         private IExpression ParseIntegerLiteral()
         {
-            _tracer.Trace("ParseIntegerLiteral");
+            _tracer.Trace(nameof(ParseIntegerLiteral));
             var lit = new IntegerLiteral { Token = _curToken };
 
             long value;
@@ -315,7 +315,7 @@ namespace Monkey.Core
 
         private IExpression ParsePrefixExpression()
         {
-            _tracer.Trace("ParsePrefixExpression");
+            _tracer.Trace(nameof(ParsePrefixExpression));
             var expr = new PrefixExpression { Token = _curToken, Operator = _curToken.Literal };
             NextToken();
             expr.Right = ParseExpression(PrecedenceLevel.Prefix);
@@ -328,7 +328,7 @@ namespace Monkey.Core
 
         private IExpression ParseInfixExpression(IExpression left)
         {
-            _tracer.Trace("ParseInfixExpression");
+            _tracer.Trace(nameof(ParseInfixExpression));
             var expr = new InfixExpression { Token = _curToken, Operator = _curToken.Literal, Left = left };
             var p = CurPrecedence();
             NextToken();
