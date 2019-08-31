@@ -241,8 +241,7 @@ namespace Monkey.Core
         private IExpression ParseExpression(PrecedenceLevel precedence)
         {
             _tracer.Trace(nameof(ParseExpression));
-            PrefixParseFn prefix;
-            var ok = _prefixParseFns.TryGetValue(_curToken.Type, out prefix);
+            var ok = _prefixParseFns.TryGetValue(_curToken.Type, out PrefixParseFn prefix);
             if (!ok)
             {
                 NoPrefixParseFnError(_curToken.Type);
@@ -258,8 +257,7 @@ namespace Monkey.Core
             // carried out first when the expression is evaluated.
             while (!PeekTokenIs(TokenType.Semicolon) && precedence < PeekPrecedence())
             {
-                InfixParseFn infix;
-                ok = _infixParseFns.TryGetValue(_peekToken.Type, out infix);
+                ok = _infixParseFns.TryGetValue(_peekToken.Type, out InfixParseFn infix);
                 if (!ok)
                     return leftExpr;
 
@@ -298,8 +296,7 @@ namespace Monkey.Core
             _tracer.Trace(nameof(ParseIntegerLiteral));
             var lit = new IntegerLiteral { Token = _curToken };
 
-            long value;
-            var ok = long.TryParse(_curToken.Literal, out value);
+            var ok = long.TryParse(_curToken.Literal, out long value);
             if (!ok)
             {
                 Errors.Add($"Could not parse '{_curToken.Literal}' as integer");
@@ -530,8 +527,7 @@ namespace Monkey.Core
 
         private PrecedenceLevel PeekPrecedence()
         {
-            PrecedenceLevel pv;
-            var ok = precedences.TryGetValue(_peekToken.Type, out pv);
+            var ok = precedences.TryGetValue(_peekToken.Type, out PrecedenceLevel pv);
 
             // Returning Lowest when precedence cannot be found for a token is
             // what enables us to parse for instance grouped expression. The
@@ -543,8 +539,7 @@ namespace Monkey.Core
 
         private PrecedenceLevel CurPrecedence()
         {
-            PrecedenceLevel pv;
-            var ok = precedences.TryGetValue(_curToken.Type, out pv);
+            var ok = precedences.TryGetValue(_curToken.Type, out PrecedenceLevel pv);
             return ok ? pv : PrecedenceLevel.Lowest;
         }
     }

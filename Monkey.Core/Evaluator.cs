@@ -293,8 +293,7 @@ namespace Monkey.Core
             if (inCurrentEnvironment)
                 return val;
 
-            MonkeyBuiltin fn;
-            var inBuiltinEnvironment = MonkeyBuiltins.Builtins.TryGetValue(node.Value, out fn);
+            var inBuiltinEnvironment = MonkeyBuiltins.Builtins.TryGetValue(node.Value, out MonkeyBuiltin fn);
             if (inBuiltinEnvironment)
                 return fn;
 
@@ -384,8 +383,7 @@ namespace Monkey.Core
             var hashObject = (MonkeyHash)hash;
             if (index is IHashable key)
             {
-                HashPair pair;
-                var ok = hashObject.Pairs.TryGetValue(key.HashKey(), out pair);
+                var ok = hashObject.Pairs.TryGetValue(key.HashKey(), out HashPair pair);
                 if (!ok)
                     return Null;
 

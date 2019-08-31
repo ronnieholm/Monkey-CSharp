@@ -23,8 +23,7 @@ namespace Monkey.Core
 
         public (IMonkeyObject, bool) Get(string name)
         {
-            IMonkeyObject value;
-            var ok = Store.TryGetValue(name, out value);
+            var ok = Store.TryGetValue(name, out IMonkeyObject value);
 
             // If the current environment doesn't have a value associated with
             // the name, we recursively call Get on the enclosing environment
