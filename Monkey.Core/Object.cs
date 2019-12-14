@@ -5,7 +5,7 @@ using System.Text;
 // This file holds the types of MonkeyObjects which may be produced during
 // evaluation of Abstract Syntax Tree nodes. The MonkeyObjects are all fairly
 // simple because we use the host language to represent such objects as
-// interger, string, array, and hash in Monkey.
+// integer, string, array, and hash in Monkey.
 
 namespace Monkey.Core
 {

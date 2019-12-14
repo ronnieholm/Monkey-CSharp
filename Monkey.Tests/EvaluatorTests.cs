@@ -195,7 +195,7 @@ namespace Monkey.Tests
 
             let addTwo = newAdder(2);
             addTwo(2);", 4)]
-        public void TestClojures(string input, long expected)
+        public void TestClosures(string input, long expected)
         {
             TestIntegerObject(TestEval(input), expected);
         }

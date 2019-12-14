@@ -6,7 +6,7 @@ namespace Monkey.Core
 {
     public static class MonkeyBuiltins
     {
-        static public Dictionary<string, MonkeyBuiltin> Builtins = new Dictionary<string, MonkeyBuiltin>();
+        public static readonly Dictionary<string, MonkeyBuiltin> Builtins = new Dictionary<string, MonkeyBuiltin>();
 
         static MonkeyBuiltins()
         {

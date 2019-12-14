@@ -58,7 +58,7 @@ namespace Monkey.Core
         // examination, to decide what to do next, and we need _peekToken to
         // guide the decision in case _curToken doesn't provide us with enough
         // information, e.g., with the input "5;", then _curToken is Int and we
-        // require _peekToken to decide if where're at the end of the line or if
+        // require _peekToken to decide if we're at the end of the line or if
         // we're at the start of an arithmetic expression. In effect, this
         // implements a parser with one token lookahead.
         Token _curToken;
@@ -73,7 +73,7 @@ namespace Monkey.Core
         // Actual numeric numbers doesn't matter, but the order and the relation
         // to each other does. We want to be able to answer questions such as
         // whether operator * has higher precedence than operator ==. While
-        // using an enum over a class with integer constants alliviates the need
+        // using an enum over a class with integer constants alleviates the need
         // to explicitly assign a value to each member, it making debugging the
         // Pratt parser slightly more difficult. During precedence value
         // comparisons, the debugger will show the strings over their its
