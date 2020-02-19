@@ -265,14 +265,14 @@ namespace Monkey.Tests
                 Assert.Equal(a.Length, array.Elements.Count);
 
                 for (var idx = 0; idx < a.Length; idx++)
-                    TestIntegerObject(array.Elements[idx], (long)(a[idx]));
+                    TestIntegerObject(array.Elements[idx], a[idx]);
             }
         }
 
         [Fact]
         public void TestArrayLiterals()
         {
-            var input = "[1, 2 * 2, 3 + 3]";
+            const string input = "[1, 2 * 2, 3 + 3]";
             var evaluated = TestEval(input);
 
             Assert.IsType<MonkeyArray>(evaluated);

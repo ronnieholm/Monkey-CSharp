@@ -449,7 +449,7 @@ namespace Monkey.Tests
 
             var s = "";
             foreach (var e in p.Errors)
-                s += e + "\n";
+                s += $"{e}\n";
 
             throw new Exception($"Parser encountered {p.Errors.Count} errors\n{s}");
         }

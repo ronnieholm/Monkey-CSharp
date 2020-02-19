@@ -5,13 +5,13 @@ namespace Monkey.Core
     // We call it MonkeyEnvironment to avoid confusion with System.Environment.
     public class MonkeyEnvironment
     {
-        public Dictionary<string, IMonkeyObject> Store { get; set; }
-        public MonkeyEnvironment Outer { get; set; }
+        private Dictionary<string, IMonkeyObject> Store { get; set; }
+        private MonkeyEnvironment Outer { get; set; }
 
         public MonkeyEnvironment() => 
             Store = new Dictionary<string, IMonkeyObject>();
 
-        public static MonkeyEnvironment NewEnvironment() =>
+        private static MonkeyEnvironment NewEnvironment() =>
             new MonkeyEnvironment { Store = new Dictionary<string, IMonkeyObject>(), Outer = null };
 
         public static MonkeyEnvironment NewEnclosedEnvironment(MonkeyEnvironment outer)

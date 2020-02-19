@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace Monkey.Core
 {
-    public class Evaluator
+    public static class Evaluator
     {
         // There's only ever a need for one instance of these values so as an
         // optimization we create a single instance of each to return during
         // evaluation.
-        public static MonkeyBoolean True = new MonkeyBoolean { Value = true };
-        public static MonkeyBoolean False = new MonkeyBoolean { Value = false };
-        public static MonkeyNull Null = new MonkeyNull();
+        public static readonly MonkeyBoolean True = new MonkeyBoolean { Value = true };
+        public static readonly MonkeyBoolean False = new MonkeyBoolean { Value = false };
+        public static readonly MonkeyNull Null = new MonkeyNull();
 
         public static IMonkeyObject Eval(INode node, MonkeyEnvironment env)
         {
@@ -285,7 +285,7 @@ namespace Monkey.Core
         private static MonkeyBoolean NativeBoolToBooleanObject(bool input) => input ? True : False;
 
         private static bool IsError(IMonkeyObject obj) => 
-            obj != null ? obj.Type == ObjectType.Error : false;
+            obj != null && obj.Type == ObjectType.Error;
 
         private static IMonkeyObject EvalIdentifier(Identifier node, MonkeyEnvironment env)
         {

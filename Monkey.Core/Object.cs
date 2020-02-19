@@ -65,7 +65,7 @@ namespace Monkey.Core
 
     public class MonkeyInteger : IMonkeyObject, IHashable
     {
-        public ObjectType Type { get => ObjectType.Integer; }
+        public ObjectType Type => ObjectType.Integer;
         public long Value { get; set; }
         public string Inspect() => Value.ToString();
 
@@ -75,7 +75,7 @@ namespace Monkey.Core
 
     public class MonkeyBoolean : IMonkeyObject, IHashable
     {
-        public ObjectType Type { get => ObjectType.Boolean; }
+        public ObjectType Type => ObjectType.Boolean;
         public bool Value { get; set; }
         public string Inspect() => Value.ToString();
 
@@ -90,14 +90,14 @@ namespace Monkey.Core
     // doesn't wrap any value. It represents the absence of any value.
     public class MonkeyNull : IMonkeyObject
     {
-        public ObjectType Type { get => ObjectType.Null; }
+        public ObjectType Type => ObjectType.Null;
         public string Inspect() => "null";
     }
 
     // MonkeyReturnValue is a wrapper around another Monkey object.
     public class MonkeyReturnValue : IMonkeyObject
     {
-        public ObjectType Type { get => ObjectType.ReturnValue; }
+        public ObjectType Type => ObjectType.ReturnValue;
         public IMonkeyObject Value { get; set; }
         public string Inspect() => Value.Inspect();
     }
@@ -107,14 +107,14 @@ namespace Monkey.Core
     // number to such error object.
     public class MonkeyError : IMonkeyObject
     {
-        public ObjectType Type { get => ObjectType.Error; }
+        public ObjectType Type => ObjectType.Error;
         public string Message;
         public string Inspect() => $"Error: {Message}";
     }
 
     public class MonkeyFunction : IMonkeyObject
     {
-        public ObjectType Type { get => ObjectType.Function; }
+        public ObjectType Type => ObjectType.Function;
 
         public List<Identifier> Parameters { get; set; }
         public BlockStatement Body { get; set; }
@@ -145,7 +145,7 @@ namespace Monkey.Core
     {
         public string Value { get; set; }
         public string Inspect() => Value;
-        public ObjectType Type { get => ObjectType.String; }
+        public ObjectType Type => ObjectType.String;
 
         public HashKey HashKey()
         {
@@ -158,14 +158,14 @@ namespace Monkey.Core
 
     public class MonkeyBuiltin : IMonkeyObject
     {
-        public ObjectType Type { get => ObjectType.Builtin; }
+        public ObjectType Type => ObjectType.Builtin;
         public BuiltinFunction Fn { get; set; }
         public string Inspect() => "builtin function";
     }
 
     public class MonkeyArray : IMonkeyObject
     {
-        public ObjectType Type { get => ObjectType.Array; }
+        public ObjectType Type => ObjectType.Array;
 
         public List<IMonkeyObject> Elements { get; set; }
 
@@ -192,7 +192,7 @@ namespace Monkey.Core
 
     public class MonkeyHash : IMonkeyObject
     {
-        public ObjectType Type { get => ObjectType.Hash; }
+        public ObjectType Type => ObjectType.Hash;
 
         public Dictionary<HashKey, HashPair> Pairs { get; set; }
 

@@ -17,14 +17,15 @@ namespace Monkey.Core
     // stdout isn't redirected to the VSCode's Output tab.
     public class ParserTracer
     {
-        const char TraceIdentPlaceholder = '\t';
-        static int traceLevel = 0;
-        bool _withTracing;
+        private const char TraceIdentPlaceholder = '\t';
+        private static int _traceLevel;
+        private readonly bool _withTracing;
 
-        void IncIdent() => traceLevel++;
-        void DecIdent() => traceLevel--;
-        string IdentLevel() => new string(TraceIdentPlaceholder, traceLevel);
-        void TracePrint(string message) 
+        private static void IncIdent() => _traceLevel++;
+        private static void DecIdent() => _traceLevel--;
+        private static string IdentLevel() => new string(TraceIdentPlaceholder, _traceLevel);
+
+        private void TracePrint(string message) 
         {
             if (_withTracing)
                 Console.WriteLine($"{IdentLevel()}{message}");
@@ -46,11 +47,11 @@ namespace Monkey.Core
 
     public class Parser
     {
-        Lexer _lexer;
+        readonly Lexer _lexer;
 
         // For visualizing and debugging the Pratt expression parser for Monkey
         // expressions.
-        ParserTracer _tracer;
+        readonly ParserTracer _tracer;
 
         // Acts like _position and PeekChar within the lexer, but instead of
         // pointing to a character in the input they point to the current and
@@ -64,11 +65,11 @@ namespace Monkey.Core
         Token _curToken;
         Token _peekToken;
 
-        public List<string> Errors { get; private set; }
+        public List<string> Errors { get; }
 
         // Functions based on token type called as part of Pratt parsing.
-        Dictionary<TokenType, PrefixParseFn> _prefixParseFns;
-        Dictionary<TokenType, InfixParseFn> _infixParseFns;
+        readonly Dictionary<TokenType, PrefixParseFn> _prefixParseFns;
+        readonly Dictionary<TokenType, InfixParseFn> _infixParseFns;
 
         // Actual numeric numbers doesn't matter, but the order and the relation
         // to each other does. We want to be able to answer questions such as
@@ -98,7 +99,7 @@ namespace Monkey.Core
         // isn't associated with a token but an expression as a whole. On the
         // other hand, some operators, such as multiplication and division,
         // share the same precedence level.
-        Dictionary<TokenType, PrecedenceLevel> precedences = new Dictionary<TokenType, PrecedenceLevel>
+        readonly Dictionary<TokenType, PrecedenceLevel> _precedences = new Dictionary<TokenType, PrecedenceLevel>
         {
             { TokenType.Eq, PrecedenceLevel.Equals },
             { TokenType.NotEq, PrecedenceLevel.Equals },
@@ -154,8 +155,7 @@ namespace Monkey.Core
 
         public Program ParseProgram()
         {
-            var p = new Program();
-            p.Statements = new List<IStatement>();
+            var p = new Program { Statements = new List<IStatement>() };
 
             while (!CurTokenIs(TokenType.Eof))
             {
@@ -464,9 +464,7 @@ namespace Monkey.Core
 
         private IExpression ParseArrayLiteral()
         {
-            var array = new ArrayLiteral { Token = _curToken };
-            array.Elements = ParseExpressionList(TokenType.RBracket);
-            return array;
+            return new ArrayLiteral { Token = _curToken, Elements = ParseExpressionList(TokenType.RBracket) };
         }
 
         // Similar to ParseFunctionParameters() expect that it's more generic
@@ -527,7 +525,7 @@ namespace Monkey.Core
 
         private PrecedenceLevel PeekPrecedence()
         {
-            var ok = precedences.TryGetValue(_peekToken.Type, out PrecedenceLevel pv);
+            var ok = _precedences.TryGetValue(_peekToken.Type, out PrecedenceLevel pv);
 
             // Returning Lowest when precedence cannot be found for a token is
             // what enables us to parse for instance grouped expression. The
@@ -539,7 +537,7 @@ namespace Monkey.Core
 
         private PrecedenceLevel CurPrecedence()
         {
-            var ok = precedences.TryGetValue(_curToken.Type, out PrecedenceLevel pv);
+            var ok = _precedences.TryGetValue(_curToken.Type, out PrecedenceLevel pv);
             return ok ? pv : PrecedenceLevel.Lowest;
         }
     }

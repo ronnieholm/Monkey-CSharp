@@ -34,7 +34,6 @@ namespace Monkey.Tests
                 }
             };
 
-            var x = program.String;
             Assert.Equal("let myVar = anotherVar;", program.String);
         }
     }

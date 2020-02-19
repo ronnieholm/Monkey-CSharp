@@ -18,7 +18,7 @@ namespace Monkey.Core
             Builtins.Add("puts", new MonkeyBuiltin { Fn = Puts });
         }
 
-        static IMonkeyObject Len(List<IMonkeyObject> args)
+        private static IMonkeyObject Len(List<IMonkeyObject> args)
         {
             if (args.Count != 1)
                 return Evaluator.NewError($"Wrong number of arguments. Got={args.Count}, want=1");
@@ -31,7 +31,7 @@ namespace Monkey.Core
                 return Evaluator.NewError($"Argument to 'len' not supported. Got {args[0].Type}");
         }
 
-        static IMonkeyObject First(List<IMonkeyObject> args)
+        private static IMonkeyObject First(List<IMonkeyObject> args)
         {
             if (args.Count != 1)
                 return Evaluator.NewError($"Wrong number of arguments. Got={args.Count}, want=1");
@@ -42,7 +42,7 @@ namespace Monkey.Core
                 return Evaluator.NewError($"Argument to 'first' must be Array. Got {args[0].Type}");
         }
 
-        static IMonkeyObject Last(List<IMonkeyObject> args)
+        private static IMonkeyObject Last(List<IMonkeyObject> args)
         {
             if (args.Count != 1)
                 return Evaluator.NewError($"Wrong number of arguments. Got={args.Count}, want=1");
@@ -56,7 +56,7 @@ namespace Monkey.Core
                 return Evaluator.NewError($"Argument to 'last' must be Array. Got {args[0].Type}");
         }
 
-        static IMonkeyObject Rest(List<IMonkeyObject> args)
+        private static IMonkeyObject Rest(List<IMonkeyObject> args)
         {
             if (args.Count != 1)
                 return Evaluator.NewError($"Wrong number of arguments. Got={args.Count}, want=1");
@@ -73,7 +73,7 @@ namespace Monkey.Core
                 return Evaluator.NewError($"Argument to 'last' must be Array. Got {args[0].Type}");
         }
         
-        static IMonkeyObject Push(List<IMonkeyObject> args)
+        private static IMonkeyObject Push(List<IMonkeyObject> args)
         {
             if (args.Count != 2)
                 return Evaluator.NewError($"Wrong number of arguments. Got={args.Count}, want=2");
@@ -89,7 +89,7 @@ namespace Monkey.Core
                 return Evaluator.NewError($"Argument to 'push' must be Array. Got {args[0].Type}");
         }        
 
-        static IMonkeyObject Puts(List<IMonkeyObject> args)
+        private static IMonkeyObject Puts(List<IMonkeyObject> args)
         {
             foreach (var arg in args)
                 Console.WriteLine(arg.Inspect());

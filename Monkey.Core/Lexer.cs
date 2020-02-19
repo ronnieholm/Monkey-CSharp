@@ -61,7 +61,7 @@ namespace Monkey.Core
 
     public class Lexer
     {
-        string _input;
+        readonly string _input;
 
         // Position in input from where we last read a character.
         int _position;
@@ -73,7 +73,7 @@ namespace Monkey.Core
         // Character under examination.
         char _ch;
 
-        Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>
+        readonly Dictionary<string, TokenType> _keywords = new Dictionary<string, TokenType>
         {
             { "fn", TokenType.Function },
             { "let", TokenType.Let },
@@ -86,7 +86,7 @@ namespace Monkey.Core
 
         public Lexer(string input)
         {
-            this._input = input;
+            _input = input;
             ReadChar();
         }
 
@@ -102,7 +102,7 @@ namespace Monkey.Core
                     {
                         var c = _ch;
                         ReadChar();
-                        tok = new Token(TokenType.Eq, c + _ch.ToString());
+                        tok = new Token(TokenType.Eq, $"{c}{_ch}");
                     }
                     else
                         tok = new Token(TokenType.Assign, _ch.ToString());
@@ -118,7 +118,7 @@ namespace Monkey.Core
                     {
                         var c = _ch;
                         ReadChar();
-                        tok = new Token(TokenType.NotEq, c + _ch.ToString());
+                        tok = new Token(TokenType.NotEq, $"{c}{_ch}");
                     }
                     else
                         tok = new Token(TokenType.Bang, _ch.ToString());
@@ -200,10 +200,10 @@ namespace Monkey.Core
             return tok;
         }
 
-        public TokenType LookupIdent(string ident)
+        private TokenType LookupIdent(string ident)
         {
-            return keywords.ContainsKey(ident)
-                ? keywords[ident]
+            return _keywords.ContainsKey(ident)
+                ? _keywords[ident]
                 : TokenType.Ident;
         }
 
@@ -255,8 +255,8 @@ namespace Monkey.Core
         {
             var position = _position + 1;
 
-            // BUG: Passing a string which isn't terminated by " cases an
-            // infinite loop because even though we've reached the end of input,
+            // BUG: Passing a string which isn't " terminated causes an
+            // infinite loop because even though we reached the end of input,
             // the " characters hasn't been reached.
             do
             {
