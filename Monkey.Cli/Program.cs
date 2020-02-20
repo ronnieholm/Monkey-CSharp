@@ -25,8 +25,11 @@ namespace Monkey.Cli
         {
             const string prompt = ">> ";
 
-            WriteLine($"Hello {Environment.UserName}! This is the Monkey programming language!");
-            WriteLine("Feel free to type in commands");
+            if (args.Length == 0)
+            {
+                WriteLine($"Hello {Environment.UserName}! This is the Monkey programming language!");
+                WriteLine("Feel free to type in commands");
+            }
 
             // The environment must survive across inputs and remain for as long
             // as the REPL is running. Otherwise it wouldn't be possible for
