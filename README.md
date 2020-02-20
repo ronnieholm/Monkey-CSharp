@@ -35,7 +35,8 @@ Also have a look at the unit tests and Examples folder in this repository.
     $ cd Monkey-CSharp
     $ dotnet build
     $ dotnet test Monkey.Tests
-    $ dotnet run -p Monkey.Cli
+    $ dotnet run -p Monkey.Cli # Interactive REPL
+    $ dotnet run -p Monkey.Cli -- Examples/Functional-programming.monkey
 
 ## Resources
 

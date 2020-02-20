@@ -9,3 +9,5 @@ let fibonacci = fn(x) {
     }
   }
 };
+
+fibonacci(10);

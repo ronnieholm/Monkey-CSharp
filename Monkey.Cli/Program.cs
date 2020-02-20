@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using static System.Console;
 using Monkey.Core;
 
@@ -33,8 +34,15 @@ namespace Monkey.Cli
             var env = new MonkeyEnvironment();
             while (true)
             {
-                Write(prompt);
-                var line = ReadLine();
+                var line = "";
+                if (args.Length == 0)
+                {
+                    Write(prompt);
+                    line = ReadLine();                                   
+                }
+                else
+                    line = File.ReadAllText(args[0]);
+
                 var lexer = new Lexer(line);
                 var parser = new Parser(lexer, false);
                 var program = parser.ParseProgram();
@@ -48,6 +56,9 @@ namespace Monkey.Cli
                 var evaluated = Evaluator.Eval(program, env);
                 if (evaluated != null)
                     WriteLine(evaluated.Inspect());
+
+                if (args.Length == 1)
+                    break;
             }
         }
 
