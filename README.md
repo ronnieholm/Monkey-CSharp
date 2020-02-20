@@ -23,12 +23,9 @@ capable interpreter, implemented entirely without third party libraries.
 
 ## Examples
 
-See the [official](https://interpreterbook.com) homepage. Navigate to "The
-Monkey Programming Language" section for examples and browse through the tests
-in this repository.
-
-Also have a look at the unit tests and [Examples folder](Examples) in this
-repository.
+See "The Monkey Programming Language" section on the
+[official](https://interpreterbook.com) homepage and have a look at the unit
+tests and [Examples](Examples) folder in this repository.
 
 ## Getting started
 
