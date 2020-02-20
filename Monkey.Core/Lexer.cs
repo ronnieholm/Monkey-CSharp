@@ -63,11 +63,10 @@ namespace Monkey.Core
     {
         readonly string _input;
 
-        // Position in input from where we last read a character.
+        // Position in input where last character was read.
         int _position;
 
-        // Position in input from where we're going to read a character from
-        // next.
+        // Position in input where next character is read.
         int _readPosition;
 
         // Character under examination.

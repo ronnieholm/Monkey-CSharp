@@ -1,35 +1,33 @@
 # Monkey-CSharp
 
-This repository contains a C# port of the Monkey programming language from the
-[Writing an interpreter in Go](https://interpreterbook.com) book. Its code
-closely resembles that presented in the book, but written in idiomatic C# for
-the .NET Core runtime. Using the instructions below, the interpreter runs on
-both Windows, Mac, and Linux.
+A C# port of the Monkey programming language from the [Writing an interpreter in
+Go](https://interpreterbook.com) book. It's written in idiomatic C# targeting
+.NET Core on Windows, Mac, and Linux.
 
-The Monkey parser is an hand-written LL(1) hybrid of a traditional recursive
-descent parser for statements and a Pratt, also known as Top Down Operator
-Precedence, parser for expressions. The hybrid parser ensures efficient parsing
-while supporting operator precedence and associativity. Its outputs is an
-abstract syntax tree which the tree walking evaluator traverses as part of
-executing a Monkey program.
+From the book:
+
+> It supports mathematical expressions, variable bindings, functions and the
+> application of those functions, conditionals, return statements and even
+> advanced concepts like higher-order functions and closures. And then there are
+> the different data types: integers, booleans, strings, arrays and hashes.
+
+The Monkey parser consists of a hand-written LL(1) traditional recursive descent
+parser for statements combined with a Pratt parser for expressions. The hybrid
+parser ensures efficient parsing while elegantly supporting operator precedence.
+Its outputs is an abstract syntax tree walked by the evaluator as part of
+program execution.
 
 The complete implementation of the lexer, parser, and evaluator consists of
-2,200 lines of code with an additional 1,150 lines of tests. Not a lot of code
-for such a capable interpreter, implemented entirely without third party
-libraries.
-
-## Features
-
-The Monkey language supports mathematical expressions, variable bindings,
-functions and the application of those functions, conditionals, return
-statements, and advanced concepts such as higher-order functions and closures.
-The data types supported are integers, booleans, strings, arrays, and hashes.
+1,500 lines of code with an additional 925 lines of tests. Not a lot for such a
+capable interpreter, implemented entirely without third party libraries.
 
 ## Examples
 
 See the [official](https://interpreterbook.com) homepage. Navigate to "The
 Monkey Programming Language" section for examples and browse through the tests
 in this repository.
+
+Also have a look at the unit tests and Examples folder in this repository.
 
 ## Getting started
 
