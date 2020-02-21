@@ -34,7 +34,7 @@ tests and [Examples](Examples) folder in this repository.
     $ dotnet build
     $ dotnet test Monkey.Tests
     $ dotnet run -p Monkey.Cli # Interactive REPL
-    $ dotnet run -p Monkey.Cli -- Examples/Functional-programming.monkey
+    $ dotnet run -p Monkey.Cli -- Examples/Fibonacci.monkey
 
 ## Resources
 
