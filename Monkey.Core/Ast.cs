@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+// TODO: Make each AST class immutable.
+
 namespace Monkey.Core
 {
     public interface INode
@@ -34,9 +36,7 @@ namespace Monkey.Core
             {
                 var sb = new StringBuilder();
                 foreach (var s in Statements)
-                {
                     sb.Append(s.String);
-                }
                 return sb.ToString();
             }
         }
@@ -55,9 +55,7 @@ namespace Monkey.Core
                 var sb = new StringBuilder();
                 sb.Append($"{TokenLiteral} {Name.String} = ");
                 if (Value != null)
-                {
                     sb.Append(Value.String);
-                }
                 sb.Append(";");
                 return sb.ToString();
             }
@@ -76,9 +74,7 @@ namespace Monkey.Core
                 var sb = new StringBuilder();
                 sb.Append($"{TokenLiteral} ");
                 if (ReturnValue != null)
-                {
                     sb.Append(ReturnValue.String);
-                }
                 sb.Append(";");
                 return sb.ToString();
             }
@@ -148,9 +144,7 @@ namespace Monkey.Core
             {
                 var sb = new StringBuilder();
                 foreach (var stmt in Statements)
-                {
                     sb.Append(stmt.String);
-                }
                 return sb.ToString();
             }
         }
@@ -222,9 +216,7 @@ namespace Monkey.Core
                 var args = new List<string>();
 
                 foreach (var a in Arguments)
-                {
                     args.Add(a.String);
-                }
 
                 sb.Append(Function.String);
                 sb.Append("(");
@@ -271,8 +263,8 @@ namespace Monkey.Core
     {
         public Token Token { get; set; }
 
-        // The object being accessed is an expression because it can be an
-        // identifier, an array literal, or a function call.
+        // Object being accessed is an expression as it can be an identifier, an
+        // array literal, or a function call.
         public IExpression Left { get; set; }
         public IExpression Index { get; set; }
         public string TokenLiteral => Token.Literal;

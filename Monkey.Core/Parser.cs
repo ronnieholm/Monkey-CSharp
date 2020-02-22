@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 
 // Tip: Setting a breakpoint in one of the parsing methods and inspecting the
-// call stack when its hit, will effectively show the Abstract Syntax Tree at
-// that point during parsing.
+// call stack when it's hit, effectively show the Abstract Syntax Tree at that
+// point during parsing.
 
 namespace Monkey.Core
 {
@@ -13,7 +13,7 @@ namespace Monkey.Core
     // In order to view output written to stdout, either run the tests from the
     // command line with "dotnet test Monkey.Tests", use the xUnit GUI runner,
     // or in VSCode run tests through the .NET Test Explorer plugin. Running
-    // tests from within the VSCode editor's "run test" or "debug test" links,
+    // tests from within VSCode through the editor "run test" or "debug test",
     // stdout isn't redirected to the VSCode's Output tab.
     public class ParserTracer
     {
@@ -49,19 +49,17 @@ namespace Monkey.Core
     {
         readonly Lexer _lexer;
 
-        // For visualizing and debugging the Pratt expression parser for Monkey
-        // expressions.
+        // For visualizing and debugging the Pratt expression parser.
         readonly ParserTracer _tracer;
 
         // Acts like _position and PeekChar within the lexer, but instead of
-        // pointing to a character in the input they point to the current and
-        // next tokens. We need to look at _curToken, the current token under
-        // examination, to decide what to do next, and we need _peekToken to
-        // guide the decision in case _curToken doesn't provide us with enough
-        // information, e.g., with the input "5;", then _curToken is Int and we
-        // require _peekToken to decide if we're at the end of the line or if
-        // we're at the start of an arithmetic expression. In effect, this
-        // implements a parser with one token lookahead.
+        // pointing to characters in the input they point to current and next
+        // tokens. We need _curToken, the current token under examination, to
+        // decide what to do next, and we need _peekToken to guide the decision
+        // in case _curToken doesn't provide us with enough information, e.g.,
+        // with input "5;", _curToken is Int and we require _peekToken to decide
+        // if we're at the end of the line or at the start of an arithmetic
+        // expression. This implements a parser with one token lookahead.
         Token _curToken;
         Token _peekToken;
 
@@ -71,14 +69,13 @@ namespace Monkey.Core
         readonly Dictionary<TokenType, PrefixParseFn> _prefixParseFns;
         readonly Dictionary<TokenType, InfixParseFn> _infixParseFns;
 
-        // Actual numeric numbers doesn't matter, but the order and the relation
-        // to each other does. We want to be able to answer questions such as
-        // whether operator * has higher precedence than operator ==. While
-        // using an enum over a class with integer constants alleviates the need
-        // to explicitly assign a value to each member, it making debugging the
-        // Pratt parser slightly more difficult. During precedence value
-        // comparisons, the debugger will show the strings over their its
-        // implicit number.
+        // It's the relative and not absolute values of levels that matter.
+        // During parsing we want to answer questions such as whether product
+        // has higher precedence than equals. While using an enum over a class
+        // with integer constants alleviates the need to explicitly assign a
+        // value to each member, it makes debugging the Pratt parser slightly
+        // more difficult. During precedence value comparisons, the debugger
+        // shows strings instead of their values.
         enum PrecedenceLevel
         {
             None = 0,
@@ -92,13 +89,13 @@ namespace Monkey.Core
             Index           // array[index]
         }
 
-        // Table of precedence associated with token. Observe how not every
-        // precedence value is present (Lowest and Prefix missing) and some are
-        // levels are appear more than once (LessGreater, Sum, Product). Lowest
-        // serves as a starting precedence for the Pratt parser while Prefix
-        // isn't associated with a token but an expression as a whole. On the
-        // other hand, some operators, such as multiplication and division,
-        // share the same precedence level.
+        // Table of precedence to map token type to precedence level. Not every
+        // precedence level is present (Lowest and Prefix) and some precedence
+        // levels appear more than once (LessGreater, Sum, Product). Lowest
+        // serves as starting precedence for the Pratt parser while Prefix isn't
+        // associated with any token but an expression as a whole. On the other
+        // hand some operators such as multiplication and division share
+        // precedence level.
         readonly Dictionary<TokenType, PrecedenceLevel> _precedences = new Dictionary<TokenType, PrecedenceLevel>
         {
             { TokenType.Eq, PrecedenceLevel.Equals },
@@ -156,7 +153,6 @@ namespace Monkey.Core
         public Program ParseProgram()
         {
             var p = new Program { Statements = new List<IStatement>() };
-
             while (!CurTokenIs(TokenType.Eof))
             {
                 var s = ParseStatement();
@@ -183,8 +179,8 @@ namespace Monkey.Core
                     return ParseReturnStatement();
                 default:
                     // The only two real statement types in Monkey are let and
-                    // return. If none of those matched, try to parse input as
-                    // pseudo ExpressionStatement.
+                    // return. If none of those got matched, try to parse input
+                    // as a pseudo ExpressionStatement.
                     return ParseExpressionStatement();
             }
         }
@@ -249,12 +245,12 @@ namespace Monkey.Core
             }
             var leftExpr = prefix();
 
-            // The precedence is what the original Pratt paper refers to as
-            // right-binding power and PeekPrecedence() is what it refers to as
-            // left-binding power. For as long as left-binding power >
-            // right-binding power, we're going to add another level to the
-            // Abstract Syntax Three, signifying operations which need to be
-            // carried out first when the expression is evaluated.
+            // precedence is what the Pratt paper refers to as right-binding
+            // power and PeekPrecedence() is what it refers to as left-binding
+            // power. For as long as left-binding power > right-binding power,
+            // add another level to the Abstract Syntax Three, signifying
+            // operations which need to be carried out first when the expression
+            // is evaluated.
             while (!PeekTokenIs(TokenType.Semicolon) && precedence < PeekPrecedence())
             {
                 ok = _infixParseFns.TryGetValue(_peekToken.Type, out InfixParseFn infix);
@@ -349,12 +345,12 @@ namespace Monkey.Core
             expr.Index = ParseExpression(PrecedenceLevel.Lowest);
 
             // BUG: Attempting to parse "{}[""foo""" with a missing ] causes
-            // null to be returned. The null is passed to Eval() for evaluation
-            // but since no node type is defined for null, we end up in Eval()'s
-            // default case which throws an Exception. In the process of
-            // throwing this exception it itself throws a NullReferenceException
-            // because node in "throw new Exception($"Invalid node type:
-            // {node.GetType()}");" is null.
+            // null to be returned. The null is passed to Eval() but since no
+            // node type is defined for null, we end up in Eval()'s default case
+            // which throws an Exception. In the process of throwing this
+            // exception it itself throws a NullReferenceException because node
+            // in "throw new Exception($"Invalid node type: {node.GetType()}");"
+            // is null. Python implementation doesn't have this issue.
             if (!ExpectPeek(TokenType.RBracket))
                 return null;
             return expr;
@@ -379,7 +375,6 @@ namespace Monkey.Core
 
             if (!ExpectPeek(TokenType.RParen))
                 return null;
-
             if (!ExpectPeek(TokenType.LBrace))
                 return null;
 
@@ -405,7 +400,7 @@ namespace Monkey.Core
             NextToken();
 
             // BUG: If '}' is missing from the program, this code goes into an
-            // infinite loop.
+            // infinite loop. Python implementation doesn't have this issue.
             while (!CurTokenIs(TokenType.RBrace))
             {
                 var stmt = ParseStatement();
@@ -467,12 +462,11 @@ namespace Monkey.Core
             return new ArrayLiteral { Token = _curToken, Elements = ParseExpressionList(TokenType.RBracket) };
         }
 
-        // Similar to ParseFunctionParameters() expect that it's more generic
-        // and returns a list of expression rather than a list of identifiers.
+        // Similar to ParseFunctionParameters() except it's more general and
+        // returns a list of expression rather than a list of identifiers.
         private List<IExpression> ParseExpressionList(TokenType end)
         {
             var list = new List<IExpression>();
-
             if (PeekTokenIs(end))
             {
                 NextToken();
@@ -497,8 +491,7 @@ namespace Monkey.Core
 
         private IExpression ParseHashLiteral()
         {
-            var hash = new HashLiteral { Token = _curToken, Pairs = new Dictionary<IExpression, IExpression>() };
-            
+            var hash = new HashLiteral { Token = _curToken, Pairs = new Dictionary<IExpression, IExpression>() };            
             while (!PeekTokenIs(TokenType.RBrace))
             {
                 NextToken();
@@ -527,11 +520,11 @@ namespace Monkey.Core
         {
             var ok = _precedences.TryGetValue(_peekToken.Type, out PrecedenceLevel pv);
 
-            // Returning Lowest when precedence cannot be found for a token is
-            // what enables us to parse for instance grouped expression. The
-            // RParen doesn't have an associated precedence, so when Lowest is
-            // returned it causes the parser to finish evaluating a
-            // subexpression as a whole.
+            // Returning Lowest when precedence level could not be determined
+            // enables us to parse grouped expression. The RParen token doesn't
+            // have an associated precedence, and returning Lowest is what
+            // causes the parser to finish evaluating a subexpression as a
+            // whole.
             return ok ? pv : PrecedenceLevel.Lowest;
         }
 

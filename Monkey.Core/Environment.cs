@@ -25,11 +25,10 @@ namespace Monkey.Core
         {
             var ok = Store.TryGetValue(name, out IMonkeyObject value);
 
-            // If the current environment doesn't have a value associated with
-            // the name, we recursively call Get on the enclosing environment
-            // (which the current environment is extending) until either name is
-            // found or we can issue a "ERROR: Unknown identifier: foobar"
-            // message.
+            // If current environment doesn't have a value associated with a
+            // name, we recursively call Get on enclosing environment (which the
+            // current environment is extending) until either name is found or
+            // caller can issue a "ERROR: Unknown identifier: foobar" error.
             if (!ok && Outer != null)
                 return Outer.Get(name);
 

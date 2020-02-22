@@ -26,12 +26,11 @@ namespace Monkey.Core
 
     // Within each IMonkeyObject derived class, we could call Object.GetType()
     // to return its .NET type for comparison, thereby getting rid of the Type
-    // getter property on IMonkeyObject. Relying on Object.GetType() would also
-    // render this enum redundant. Monkey error messages, however, convert
-    // members of this enum to strings and include those in error messages.
-    // Relying on Object.GetType(), details of the implementation type would
-    // leak into user visible error messages. Hence we keep the Monkey types and
-    // .NET types separate.
+    // getter property on IMonkeyObject. Relying on Object.GetType() would
+    // render this enum redundant. Monkey error messages, however, include
+    // members of this enum in error messages. Relying on Object.GetType(),
+    // details of the underlying implementation would leak into user error
+    // messages. Hence we keep the Monkey types and .NET types separate.
     public enum ObjectType
     {
         None = 0,
@@ -57,9 +56,9 @@ namespace Monkey.Core
         // Scopes the hash to a particular object type.
         public ObjectType Type { get; set; }
 
-        // Because hash key is an integer, we can compare keys using the ==
-        // operator without the need to overload Object.GetHashCode() and
-        // Object.Equals() with their intricacies.
+        // Because key is an integer, we can compare keys using the == operator
+        // without the need to overload Object.GetHashCode() and
+        // Object.Equals().
         public ulong Value { get; set; }
     }
 
@@ -86,8 +85,8 @@ namespace Monkey.Core
         }
     }
 
-    // MonkeyNull is a type just like MonkeyInteger and MonkeyBoolean except it
-    // doesn't wrap any value. It represents the absence of any value.
+    // MonkeyNull is a type like MonkeyInteger and MonkeyBoolean except it
+    // doesn't wrap a value. It represents the absence of a value.
     public class MonkeyNull : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Null;
@@ -102,9 +101,9 @@ namespace Monkey.Core
         public string Inspect() => Value.Inspect();
     }
 
-    // MonkeyError is a simple class which wraps a string error message. In a
-    // production language, we'd want to attach stack trace and line and column
-    // number to such error object.
+    // MonkeyError wraps a string error message. In a production language, we'd
+    // want to attach stack trace and line and column numbers to such error
+    // object.
     public class MonkeyError : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Error;
@@ -119,9 +118,9 @@ namespace Monkey.Core
         public List<Identifier> Parameters { get; set; }
         public BlockStatement Body { get; set; }
 
-        // Functions in Monkey carry their own environment. This allows for
-        // closures which "close over" the environment they're defined in and
-        // allows the function to later access values within the closure.
+        // Functions carry their own environment. This allows for closures to
+        // "close over" the environment they're defined in and allows the
+        // function to later access values within the closure.
         public MonkeyEnvironment Env { get; set; }
 
         public string Inspect()

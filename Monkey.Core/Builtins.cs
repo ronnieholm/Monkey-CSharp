@@ -93,7 +93,6 @@ namespace Monkey.Core
         {
             foreach (var arg in args)
                 Console.WriteLine(arg.Inspect());
-
             return Evaluator.Null;
         }
     }

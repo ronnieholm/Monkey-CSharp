@@ -9,8 +9,8 @@ namespace Monkey.Core
 
         // Identifiers and literals
         Ident,      // add, foobar, x, y
-        Int,        // 123456
-        String,     // "foobar"
+        Int,        // 123
+        String,     // "foo"
 
         // Operators
         Assign,     // =
@@ -173,12 +173,6 @@ namespace Monkey.Core
                         var ident = ReadIdentifier();
                         var type = LookupIdent(ident);
                         tok = new Token(type, ident);
-
-                        // Early return is necessary because when calling
-                        // ReadIdentifier() we call ReadChar() repeatedly,
-                        // advancing _readPosition and _position past the last
-                        // character of the current identifier. So we don't need
-                        // to call NextToken after the switch again.
                         return tok;
                     }
                     else if (IsDigit(_ch))
@@ -254,9 +248,9 @@ namespace Monkey.Core
         {
             var position = _position + 1;
 
-            // BUG: Passing a string which isn't " terminated causes an
-            // infinite loop because even though we reached the end of input,
-            // the " characters hasn't been reached.
+            // BUG: Passing a string which isn't " terminated causes an infinite
+            // loop because even though we reached the end of input, the "
+            // characters hasn't been reached.
             do
             {
                 ReadChar();
