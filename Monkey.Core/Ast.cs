@@ -15,14 +15,14 @@ namespace Monkey.Core
 
     public class Statement : INode
     {
-        public Token Token { get; set; }
+        public Token Token { get; protected set; }
         public string TokenLiteral => Token.Literal;
         public virtual string String => Token.Literal;
     }
 
     public class Expression : INode
     {
-        public Token Token { get; set; }
+        public Token Token { get; protected set; }
         public string TokenLiteral => Token.Literal;
         public virtual string String => Token.Literal;
     }
@@ -52,18 +52,7 @@ namespace Monkey.Core
     {
         public Identifier Name { get; }
         public Expression Value { get; }
-        public override string String
-        {
-            get
-            {
-                var sb = new StringBuilder();
-                sb.Append($"{TokenLiteral} {Name.String} = ");
-                if (Value != null)
-                    sb.Append(Value.String);
-                sb.Append(";");
-                return sb.ToString();
-            }
-        }
+        public override string String => $"{TokenLiteral} {Name.String} = {Value.String};";
 
         public LetStatement(Token token, Identifier name, Expression value)
         {
@@ -76,18 +65,7 @@ namespace Monkey.Core
     public class ReturnStatement : Statement
     {
         public Expression ReturnValue { get; }
-        public override string String        
-        {
-            get
-            {
-                var sb = new StringBuilder();
-                sb.Append($"{TokenLiteral} ");
-                if (ReturnValue != null)
-                    sb.Append(ReturnValue.String);
-                sb.Append(";");
-                return sb.ToString();
-            }
-        }
+        public override string String => $"{TokenLiteral} {ReturnValue.String};";
 
         public ReturnStatement(Token token, Expression returnValue)
         {
@@ -201,18 +179,10 @@ namespace Monkey.Core
         {
             get
             {
-                var sb = new StringBuilder();
-                sb.Append("if");
-                sb.Append(Condition.String);
-                sb.Append(" ");
-                sb.Append(Consequence.String);
-
+                var s = $"if {Condition.String} {{{Consequence.String}}}";
                 if (Alternative != null)
-                {
-                    sb.Append("else ");
-                    sb.Append(Alternative.String);
-                }                
-                return sb.ToString();
+                    s += $" else {{{Alternative.String}}}";
+                return s;
             }
         }
 
@@ -233,15 +203,8 @@ namespace Monkey.Core
         {
             get
             {
-                var sb = new StringBuilder();
-                var params_ = Parameters.Select(p => p.String).ToList();
-
-                sb.Append(TokenLiteral);
-                sb.Append("(");
-                sb.Append(string.Join(", ", params_));
-                sb.Append(") ");
-                sb.Append(Body.String);
-                return sb.ToString();
+                var params_ = Parameters.Select(p => p.String).ToArray();
+                return $"{TokenLiteral}({string.Join(", ", params_)}) {Body.String}";
             }
         }
 
@@ -261,17 +224,8 @@ namespace Monkey.Core
         {
             get
             {
-                var sb = new StringBuilder();
-                var args = new List<string>();
-
-                foreach (var a in Arguments)
-                    args.Add(a.String);
-
-                sb.Append(Function.String);
-                sb.Append("(");
-                sb.Append(string.Join(", ", args));
-                sb.Append(")");
-                return sb.ToString();
+                var args = Arguments.Select(a => a.String).ToArray();
+                return $"{Function.String}({string.Join(", ", args)})";
             }
         }
 
@@ -302,16 +256,8 @@ namespace Monkey.Core
         {
             get
             {
-                var sb = new StringBuilder();
-                var elements = new List<string>();
-
-                foreach (var e in Elements)
-                    elements.Add(e.String);
-
-                sb.Append("[");
-                sb.Append(string.Join(", ", elements));
-                sb.Append("]");
-                return sb.ToString();
+                var elements = Elements.Select(e => e.String).ToArray();
+                return $"[{string.Join(", ", elements)}]";
             }
         }
 
@@ -328,19 +274,7 @@ namespace Monkey.Core
         // array literal, or a function call.
         public Expression Left { get; }
         public Expression Index { get; }
-        public override string String        
-        {
-            get
-            {
-                var sb = new StringBuilder();
-                sb.Append("(");
-                sb.Append(Left.String);
-                sb.Append("[");
-                sb.Append(Index.String);
-                sb.Append("])");
-                return sb.ToString();
-            }
-        }
+        public override string String => $"({Left.String}[{Index.String}])";
 
         public IndexExpression(Token token, Expression left, Expression index)
         {
@@ -357,16 +291,8 @@ namespace Monkey.Core
         {
             get
             {
-                var sb = new StringBuilder();
-                var pairs = new List<string>();
-                
-                foreach (var kv in Pairs)
-                    pairs.Add($"{kv.Key.String}:{kv.Value.String}");
-
-                sb.Append("{");
-                sb.Append(string.Join(", ", pairs));
-                sb.Append("}");                
-                return sb.ToString();
+                var pairs = Pairs.Select(kv => $"{kv.Key.String}:{kv.Value.String}");
+                return $"{{{string.Join(", ", pairs)}}}";
             }
         }
 
