@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Monkey.Core
 {
@@ -31,16 +30,7 @@ namespace Monkey.Core
     {
         public List<Statement> Statements { get; }
         public string TokenLiteral => Statements.Count > 0 ? Statements[0].TokenLiteral : "";
-        public string String        
-        {
-            get
-            {
-                var sb = new StringBuilder();
-                foreach (var s in Statements)
-                    sb.Append(s.String);
-                return sb.ToString();
-            }
-        }
+        public string String => string.Join("", Statements.Select(s => s.String));
 
         public Program(List<Statement> statements)
         {
@@ -52,7 +42,12 @@ namespace Monkey.Core
     {
         public Identifier Name { get; }
         public Expression Value { get; }
-        public override string String => $"{TokenLiteral} {Name.String} = {Value.String};";
+
+        // LetStatement, ReturnStatement, and ExpressionStatement may contain a
+        // null member. This happens when attempting to call Program.String on a
+        // program with parse errors. Program.String isn't called by tests nor
+        // CLI, but may be enabled during debugging.
+        public override string String => $"{TokenLiteral} {Name.String} = {(Value != null ? Value.String : "")};";
 
         public LetStatement(Token token, Identifier name, Expression value)
         {
@@ -65,7 +60,7 @@ namespace Monkey.Core
     public class ReturnStatement : Statement
     {
         public Expression ReturnValue { get; }
-        public override string String => $"{TokenLiteral} {ReturnValue.String};";
+        public override string String => $"{TokenLiteral} {(ReturnValue != null ? ReturnValue.String : "")};";
 
         public ReturnStatement(Token token, Expression returnValue)
         {
@@ -152,16 +147,7 @@ namespace Monkey.Core
     public class BlockStatement : Statement
     {
         public List<Statement> Statements { get; }
-        public override string String        
-        {
-            get
-            {
-                var sb = new StringBuilder();
-                foreach (var stmt in Statements)
-                    sb.Append(stmt.String);
-                return sb.ToString();
-            }
-        }
+        public override string String => string.Join("", Statements.Select(s => s.String));
 
         public BlockStatement(Token token, List<Statement> statements)
         {
@@ -199,14 +185,7 @@ namespace Monkey.Core
     {
         public List<Identifier> Parameters { get; }
         public BlockStatement Body { get; }
-        public override string String        
-        {
-            get
-            {
-                var params_ = Parameters.Select(p => p.String).ToArray();
-                return $"{TokenLiteral}({string.Join(", ", params_)}) {Body.String}";
-            }
-        }
+        public override string String => $"{TokenLiteral}({string.Join(", ", Parameters.Select(p => p.String))}) {Body.String}";
 
         public FunctionLiteral(Token token, List<Identifier> parameters, BlockStatement body)
         {
@@ -220,14 +199,7 @@ namespace Monkey.Core
     {
         public Expression Function { get; }
         public List<Expression> Arguments { get;  }
-        public override string String        
-        {
-            get
-            {
-                var args = Arguments.Select(a => a.String).ToArray();
-                return $"{Function.String}({string.Join(", ", args)})";
-            }
-        }
+        public override string String => $"{Function.String}({string.Join(", ", Arguments.Select(a => a.String))})";
 
         public CallExpression(Token token, Expression function, List<Expression> arguments)
         {
@@ -252,14 +224,7 @@ namespace Monkey.Core
     public class ArrayLiteral : Expression
     {
         public List<Expression> Elements { get; }
-        public override string String        
-        {
-            get
-            {
-                var elements = Elements.Select(e => e.String).ToArray();
-                return $"[{string.Join(", ", elements)}]";
-            }
-        }
+        public override string String => $"[{string.Join(", ", Elements.Select(e => e.String))}]"; 
 
         public ArrayLiteral(Token token, List<Expression> elements)
         {
@@ -287,14 +252,7 @@ namespace Monkey.Core
     public class HashLiteral : Expression
     {
         public Dictionary<Expression, Expression> Pairs { get; }
-        public override string String        
-        {
-            get
-            {
-                var pairs = Pairs.Select(kv => $"{kv.Key.String}:{kv.Value.String}");
-                return $"{{{string.Join(", ", pairs)}}}";
-            }
-        }
+        public override string String => $"{{{string.Join(", ", Pairs.Select(kv => $"{kv.Key.String}:{kv.Value.String}"))}}}";
 
         public HashLiteral(Token token, Dictionary<Expression, Expression> pairs)
         {

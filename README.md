@@ -1,5 +1,7 @@
 # Monkey-CSharp
 
+(A Python version of Monkey is also [available](https://github.com/ronnieholm/Monkey-Python))
+
 A C# port of the Monkey programming language from the [Writing an interpreter in
 Go](https://interpreterbook.com) book. It's written in idiomatic C# targeting
 .NET Core on Windows, Mac, and Linux.

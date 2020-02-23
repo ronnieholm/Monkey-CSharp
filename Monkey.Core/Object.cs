@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 // This file holds the types of MonkeyObjects which may be produced during
 // evaluation of Abstract Syntax Tree nodes. The MonkeyObjects are all fairly
@@ -125,18 +125,8 @@ namespace Monkey.Core
 
         public string Inspect()
         {
-            var sb = new StringBuilder();
-            var parameters = new List<string>();
-            foreach (var p in Parameters)
-                parameters.Add(p.String);                
-
-            sb.Append("fn");
-            sb.Append("(");
-            sb.Append(string.Join(", ", parameters));
-            sb.Append(") {\n");
-            sb.Append(Body.String);
-            sb.Append("\n}");
-            return sb.ToString();
+            var parameters = Parameters.Select(p => p.String);
+            return $"fn({string.Join(", ", parameters)}) {{\n{Body.String}\n}}";
         }
     }
 
@@ -170,16 +160,8 @@ namespace Monkey.Core
 
         public string Inspect()
         {
-            var sb = new StringBuilder();
-            var elements = new List<string>();
-
-            foreach (var e in Elements)
-                elements.Add(e.Inspect());
-
-            sb.Append("[");
-            sb.Append(string.Join(", ", elements));
-            sb.Append("]");
-            return sb.ToString();
+            var elements = Elements.Select(e => e.Inspect());
+            return $"[{string.Join(", ", elements)}]";
         }
     }
 
@@ -197,16 +179,8 @@ namespace Monkey.Core
 
         public string Inspect()
         {
-            var sb = new StringBuilder();
-            var pairs = new List<string>();
-
-            foreach (var kv in Pairs)
-                pairs.Add($"{kv.Value.Key.Inspect()}: {kv.Value.Value.Inspect()}");
-
-            sb.Append("{");
-            sb.Append(string.Join(", ", pairs));
-            sb.Append("}");
-            return sb.ToString();            
+            var pairs = Pairs.Select(kv => $"{kv.Value.Key.Inspect()}: {kv.Value.Value.Inspect()}");
+            return $"{{{string.Join(", ", pairs)}}}";
         }
     }
 }
