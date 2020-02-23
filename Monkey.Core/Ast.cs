@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-// TODO: Make each AST class immutable.
-
 namespace Monkey.Core
 {
     public interface INode
@@ -11,25 +9,28 @@ namespace Monkey.Core
         // For debugging and testing.
         string TokenLiteral { get; }
 
-        // We don't override Object.ToString() because we want to make the
-        // String call explicit.
+        // We don't override Object.ToString() to make String calls explicit.
         string String { get; }
     }
 
-    // Marker interface.
-    public interface IStatement : INode
+    public class Statement : INode
     {
+        public Token Token { get; set; }
+        public string TokenLiteral => Token.Literal;
+        public virtual string String => Token.Literal;
     }
 
-    // Marker interface.
-    public interface IExpression : INode
+    public class Expression : INode
     {
+        public Token Token { get; set; }
+        public string TokenLiteral => Token.Literal;
+        public virtual string String => Token.Literal;
     }
 
     public class Program : INode
     {
-        public List<IStatement> Statements { get; set; }
-        public string TokenLiteral { get => Statements.Count > 0 ? Statements[0].TokenLiteral : ""; }
+        public List<Statement> Statements { get; }
+        public string TokenLiteral => Statements.Count > 0 ? Statements[0].TokenLiteral : "";
         public string String        
         {
             get
@@ -40,15 +41,18 @@ namespace Monkey.Core
                 return sb.ToString();
             }
         }
+
+        public Program(List<Statement> statements)
+        {
+            Statements = statements;
+        }
     }
 
-    public class LetStatement : IStatement
+    public class LetStatement : Statement
     {
-        public Token Token { get; set; }
-        public Identifier Name { get; set; }
-        public IExpression Value { get; set; }
-        public string TokenLiteral { get => Token.Literal; }
-        public string String
+        public Identifier Name { get; }
+        public Expression Value { get; }
+        public override string String
         {
             get
             {
@@ -60,14 +64,19 @@ namespace Monkey.Core
                 return sb.ToString();
             }
         }
+
+        public LetStatement(Token token, Identifier name, Expression value)
+        {
+            Token = token;
+            Name = name;
+            Value = value;
+        }
     }
 
-    public class ReturnStatement : IStatement
+    public class ReturnStatement : Statement
     {
-        public Token Token { get; set; }
-        public IExpression ReturnValue { get; set; }
-        public string TokenLiteral { get => Token.Literal; }
-        public string String        
+        public Expression ReturnValue { get; }
+        public override string String        
         {
             get
             {
@@ -79,66 +88,93 @@ namespace Monkey.Core
                 return sb.ToString();
             }
         }
+
+        public ReturnStatement(Token token, Expression returnValue)
+        {
+            Token = token;
+            ReturnValue = returnValue;
+        }
     }
 
-    public class ExpressionStatement : IStatement
+    public class ExpressionStatement : Statement
     {
-        public Token Token { get; set; }
-        public IExpression Expression { get; set; }
-        public string TokenLiteral => Token.Literal;
-        public string String => Expression != null ? Expression.String : "";
+        public Expression Expression { get; }
+        public override string String => Expression != null ? Expression.String : "";
+
+        public ExpressionStatement(Token token, Expression expression)
+        {
+            Token = token;
+            Expression = expression;
+        }
     }
 
-    public class Identifier : IExpression
+    public class Identifier : Expression
     {
-        public Token Token { get; set; }
-        public string Value { get; set; }
-        public string TokenLiteral => Token.Literal;
-        public string String => Value;
+        public string Value { get; }
+
+        public Identifier(Token token, string value)
+        {
+            Token = token;
+            Value = value;
+        }
     }
 
-    public class IntegerLiteral : IExpression
+    public class IntegerLiteral : Expression
     {
-        public Token Token { get; set; }
-        public long Value { get; set; }
-        public string TokenLiteral => Token.Literal;
-        public string String => Token.Literal;
+        public long Value { get; }
+
+        public IntegerLiteral(Token token, long value)
+        {
+            Token = token;
+            Value = value;
+        }
     }
 
-    public class PrefixExpression : IExpression
+    public class PrefixExpression : Expression
     {
-        public Token Token { get; set; }
-        public string Operator { get; set; }
-        public IExpression Right;
-        public string TokenLiteral => Token.Literal;
-        public string String => $"({Operator}{Right.String})";
+        public string Operator { get; }
+        public Expression Right;
+        public override string String => $"({Operator}{Right.String})";
+
+        public PrefixExpression(Token token, string @operator)
+        {
+            Token = token;
+            Operator = @operator;
+        }
     }
 
-    public class InfixExpression : IExpression
+    public class InfixExpression : Expression
     {
-        public Token Token { get; set; }
-        public IExpression Left;
-        public string Operator { get; set; }
-        public IExpression Right;
-        public string TokenLiteral => Token.Literal;
-        public string String => $"({Left.String} {Operator} {Right.String})";
+        public Expression Left { get; }
+        public string Operator { get; }
+        public Expression Right { get; }
+        public override string String => $"({Left.String} {Operator} {Right.String})";
+
+        public InfixExpression(Token token, string @operator, Expression left, Expression right)
+        {
+            Token = token;
+            Operator = @operator;
+            Left = left;
+            Right = right;
+        }
     }
 
-    public class Boolean_ : IExpression
+    public class Boolean_ : Expression
     {
-        public Token Token { get; set; }
-        public bool Value { get; set; }
-        public string TokenLiteral => Token.Literal;
-        public string String => Token.Literal.ToLower();
+        public bool Value { get; }
+        public override string String => Token.Literal.ToLower();
+
+        public Boolean_(Token token, bool value)
+        {
+            Token = token;
+            Value = value;
+        }
     }
 
-    public class BlockStatement : IStatement
+    public class BlockStatement : Statement
     {
-        public Token Token { get; set; }
-        public List<IStatement> Statements { get; set; }
-        public string TokenLiteral => Token.Literal;
-
-        public string String        
+        public List<Statement> Statements { get; }
+        public override string String        
         {
             get
             {
@@ -148,17 +184,20 @@ namespace Monkey.Core
                 return sb.ToString();
             }
         }
+
+        public BlockStatement(Token token, List<Statement> statements)
+        {
+            Token = token;
+            Statements = statements;
+        }
     }
 
-    public class IfExpression : IExpression
+    public class IfExpression : Expression
     {
-        public Token Token { get; set; }
-        public IExpression Condition { get; set; }
-        public BlockStatement Consequence { get; set; }
-        public BlockStatement Alternative { get; set; }
-        public string TokenLiteral => Token.Literal;
-
-        public string String        
+        public Expression Condition { get; }
+        public BlockStatement Consequence { get; }
+        public BlockStatement Alternative { get; }
+        public override string String        
         {
             get
             {
@@ -176,15 +215,21 @@ namespace Monkey.Core
                 return sb.ToString();
             }
         }
+
+        public IfExpression(Token token, Expression condition, BlockStatement consequence, BlockStatement alternative)
+        {
+            Token = token;
+            Condition = condition;
+            Consequence = consequence;
+            Alternative = alternative;
+        }
     }
 
-    public class FunctionLiteral : IExpression
+    public class FunctionLiteral : Expression
     {
-        public Token Token { get; set; }
-        public List<Identifier> Parameters { get; set; }
-        public BlockStatement Body { get; set; }
-        public string TokenLiteral { get => Token.Literal; }
-        public string String        
+        public List<Identifier> Parameters { get; }
+        public BlockStatement Body { get; }
+        public override string String        
         {
             get
             {
@@ -199,16 +244,20 @@ namespace Monkey.Core
                 return sb.ToString();
             }
         }
+
+        public FunctionLiteral(Token token, List<Identifier> parameters, BlockStatement body)
+        {
+            Token = token;
+            Parameters = parameters;
+            Body = body;
+        }
     }
 
-    public class CallExpression : IExpression
+    public class CallExpression : Expression
     {
-        public Token Token { get; set; }
-        public IExpression Function { get; set; }
-        public List<IExpression> Arguments { get; set; }
-        public string TokenLiteral => Token.Literal;
-
-        public string String        
+        public Expression Function { get; }
+        public List<Expression> Arguments { get;  }
+        public override string String        
         {
             get
             {
@@ -225,23 +274,31 @@ namespace Monkey.Core
                 return sb.ToString();
             }
         }
+
+        public CallExpression(Token token, Expression function, List<Expression> arguments)
+        {
+            Token = token;
+            Function = function;
+            Arguments = arguments;
+        }
     }
 
-    public class StringLiteral : IExpression
+    public class StringLiteral : Expression
     {
-        public Token Token { get; set; }
-        public string Value { get; set; }
-        public string TokenLiteral => Token.Literal;
-        public string String => Token.Literal;
+        public string Value { get; }
+        public override string String => Token.Literal;
+
+        public StringLiteral(Token token, string value)
+        {
+            Token = token;
+            Value = value;
+        }
     }
 
-    public class ArrayLiteral : IExpression
+    public class ArrayLiteral : Expression
     {
-        public Token Token { get; set; }
-        public List<IExpression> Elements { get; set; }
-        public string TokenLiteral => Token.Literal;
-
-        public string String        
+        public List<Expression> Elements { get; }
+        public override string String        
         {
             get
             {
@@ -257,19 +314,21 @@ namespace Monkey.Core
                 return sb.ToString();
             }
         }
+
+        public ArrayLiteral(Token token, List<Expression> elements)
+        {
+            Token = token;
+            Elements = elements;
+        }
     }
 
-    public class IndexExpression : IExpression
+    public class IndexExpression : Expression
     {
-        public Token Token { get; set; }
-
         // Object being accessed is an expression as it can be an identifier, an
         // array literal, or a function call.
-        public IExpression Left { get; set; }
-        public IExpression Index { get; set; }
-        public string TokenLiteral => Token.Literal;
-
-        public string String        
+        public Expression Left { get; }
+        public Expression Index { get; }
+        public override string String        
         {
             get
             {
@@ -282,15 +341,19 @@ namespace Monkey.Core
                 return sb.ToString();
             }
         }
+
+        public IndexExpression(Token token, Expression left, Expression index)
+        {
+            Token = token;
+            Left = left;
+            Index = index;
+        }
     }
 
-    public class HashLiteral : IExpression
+    public class HashLiteral : Expression
     {
-        public Token Token { get; set; }
-        public Dictionary<IExpression, IExpression> Pairs { get; set; }
-        public string TokenLiteral => Token.Literal;
-
-        public string String        
+        public Dictionary<Expression, Expression> Pairs { get; }
+        public override string String        
         {
             get
             {
@@ -305,6 +368,12 @@ namespace Monkey.Core
                 sb.Append("}");                
                 return sb.ToString();
             }
+        }
+
+        public HashLiteral(Token token, Dictionary<Expression, Expression> pairs)
+        {
+            Token = token;
+            Pairs = pairs;
         }
     }
 }

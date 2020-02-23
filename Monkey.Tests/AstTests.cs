@@ -14,25 +14,14 @@ namespace Monkey.Tests
             // the parser produces. Tests shows that we can add another readable
             // layer of tests for our parser by comparing the parser output with
             // a string, a feature especially handdy when parsing expressions.
-            var program = new Program 
-            {
-                Statements = new List<IStatement> 
+            var program = new Program( 
+                new List<Statement> 
                 {
-                    new LetStatement 
-                    {
-                        Token = new Token { Type = TokenType.Let, Literal = "let" },
-                        Name = new Identifier 
-                        {
-                            Token = new Token { Type = TokenType.Ident, Literal = "myVar" },
-                            Value = "myVar"
-                        },
-                        Value = new Identifier {
-                            Token = new Token { Type = TokenType.Ident, Literal = "anotherVar" },
-                            Value = "anotherVar"
-                        }
-                    }
-                }
-            };
+                    new LetStatement(
+                        new Token { Type = TokenType.Let, Literal = "let" },
+                        new Identifier(new Token { Type = TokenType.Ident, Literal = "myVar" }, "myVar"),
+                        new Identifier(new Token { Type = TokenType.Ident, Literal = "anotherVar" }, "anotherVar"))
+                });
 
             Assert.Equal("let myVar = anotherVar;", program.String);
         }

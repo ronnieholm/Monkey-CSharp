@@ -122,7 +122,7 @@ namespace Monkey.Core
         // TODO: Remove and call new MonkeyError directly.
         public static MonkeyError NewError(string message) => new MonkeyError { Message = message };
 
-        private static IMonkeyObject EvalProgram(List<IStatement> statements, MonkeyEnvironment env)
+        private static IMonkeyObject EvalProgram(List<Statement> statements, MonkeyEnvironment env)
         {
             IMonkeyObject result = null;
             foreach (var stmt in statements)
@@ -142,7 +142,7 @@ namespace Monkey.Core
             return result;
         }
 
-        private static IMonkeyObject EvalBlockStatement(List<IStatement> statements, MonkeyEnvironment env)
+        private static IMonkeyObject EvalBlockStatement(List<Statement> statements, MonkeyEnvironment env)
         {
             IMonkeyObject result = null;
             foreach (var stmt in statements)
@@ -298,7 +298,7 @@ namespace Monkey.Core
             return NewError($"Identifier not found: {node.Value}");
         }
 
-        private static List<IMonkeyObject> EvalExpressions(List<IExpression> exps, MonkeyEnvironment env)
+        private static List<IMonkeyObject> EvalExpressions(List<Expression> exps, MonkeyEnvironment env)
         {
             var result = new List<IMonkeyObject>();
 
