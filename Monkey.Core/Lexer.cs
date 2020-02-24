@@ -61,12 +61,12 @@ namespace Monkey.Core
 
     public class Lexer
     {
-        readonly string _input;
+        readonly string _source;
 
-        // Position in input where last character was read.
+        // Position in source where last character was read.
         int _position;
 
-        // Position in input where next character is read.
+        // Position in source where next character is read.
         int _readPosition;
 
         // Character under examination.
@@ -83,9 +83,9 @@ namespace Monkey.Core
             { "return", TokenType.Return }
         };
 
-        public Lexer(string input)
+        public Lexer(string source)
         {
-            _input = input;
+            _source = source;
             ReadChar();
         }
 
@@ -181,7 +181,7 @@ namespace Monkey.Core
                         var literal = ReadNumber();
                         return new Token(type, literal);
                     }
-                    
+
                     tok = new Token(TokenType.Illegal, _ch.ToString());
                     ReadChar();
                     return tok;
@@ -200,16 +200,16 @@ namespace Monkey.Core
 
         private char PeekChar()
         {
-            return _readPosition >= _input.Length
+            return _readPosition >= _source.Length
                 ? '\0'
-                : _input[_readPosition];
+                : _source[_readPosition];
         }
 
         private void ReadChar()
         {
-            _ch = _readPosition >= _input.Length
+            _ch = _readPosition >= _source.Length
                 ? '\0'
-                : _input[_readPosition];
+                : _source[_readPosition];
             _position = _readPosition;
             _readPosition++;
         }
@@ -219,7 +219,7 @@ namespace Monkey.Core
             var p = _position;
             while (IsLetter(_ch))
                 ReadChar();
-            return _input.Substring(p, _position - p);
+            return _source.Substring(p, _position - p);
         }
 
         private string ReadNumber()
@@ -227,7 +227,7 @@ namespace Monkey.Core
             var p = _position;
             while (IsDigit(_ch))
                 ReadChar();
-            return _input.Substring(p, _position - p);
+            return _source.Substring(p, _position - p);
         }
 
         private bool IsLetter(char ch) =>
@@ -247,14 +247,14 @@ namespace Monkey.Core
             var position = _position + 1;
 
             // BUG: Passing a string which isn't " terminated causes an infinite
-            // loop because even though we reached the end of input, the "
+            // loop because even though we reached the end of source, the "
             // characters hasn't been reached.
             do
             {
                 ReadChar();
             }
             while (_ch != '"');
-            return _input.Substring(position, _position - position);
+            return _source.Substring(position, _position - position);
         }
     }
 }

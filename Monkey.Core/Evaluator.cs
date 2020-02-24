@@ -277,7 +277,7 @@ namespace Monkey.Core
             return true;
         } 
 
-        private static MonkeyBoolean NativeBoolToBooleanObject(bool input) => input ? True : False;
+        private static MonkeyBoolean NativeBoolToBooleanObject(bool value) => value ? True : False;
 
         private static bool IsError(IMonkeyObject obj) => 
             obj != null && obj.Type == ObjectType.Error;

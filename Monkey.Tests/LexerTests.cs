@@ -12,8 +12,8 @@ namespace Monkey.Tests
             // Although it looks like Monkey source code, some lines don't make
             // sense. That's okay, because the lexer's job isn't to tell use
             // whether code makes sense, works, or contains errors. That comes
-            // later. The lexer should only turn the input into tokens.
-            var input = @"
+            // later. The lexer should only turn the source into tokens.
+            var source = @"
                 let five = 5;
                 let ten = 10;
                 let add = fn(x, y) {
@@ -127,7 +127,7 @@ namespace Monkey.Tests
                 new Token(TokenType.Eof, ""),
             };
 
-            var lexer = new Lexer(input);
+            var lexer = new Lexer(source);
             foreach (var expected in tokens)
             {
                 var actual = lexer.NextToken();

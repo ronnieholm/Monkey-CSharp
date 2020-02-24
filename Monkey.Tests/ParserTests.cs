@@ -7,9 +7,9 @@ namespace Monkey.Tests
 {
     public class ParserTests
     {
-        private Program SetupProgram(string input)
+        private Program SetupProgram(string source)
         {
-            var lexer = new Lexer(input);
+            var lexer = new Lexer(source);
             var parser = new Parser(lexer, false);
             var program = parser.ParseProgram();
             CheckParserErrors(parser);            
@@ -20,9 +20,9 @@ namespace Monkey.Tests
         [InlineData("let x = 5;", "x", 5L)]
         [InlineData("let y = true", "y", true)]
         [InlineData("let foobar = y;", "foobar", "y")]
-        public void TestLetStatements(string input, string expectedIdentifier, object expectedValue)
+        public void TestLetStatements(string source, string expectedIdentifier, object expectedValue)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
             var stmt = p.Statements[0];
@@ -37,9 +37,9 @@ namespace Monkey.Tests
         [InlineData("return 5;", 5L)]
         [InlineData("return true;", true)]
         [InlineData("return foobar;", "foobar")]
-        public void TestReturnStatements(string input, object expected)
+        public void TestReturnStatements(string source, object expected)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
 
@@ -52,9 +52,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData("foobar")]
-        public void TestIdentifierExpression(string input)
+        public void TestIdentifierExpression(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
 
@@ -68,9 +68,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData("5")]
-        public void TestIntegerLiteralExpression(string input)
+        public void TestIntegerLiteralExpression(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
 
@@ -85,9 +85,9 @@ namespace Monkey.Tests
         [InlineData("-15;", "-", 15L)]
         [InlineData("!true;", "!", true)]
         [InlineData("!false;", "!", false)]
-        public void TestParsingPrefixExpressions(string input, string op, object value)
+        public void TestParsingPrefixExpressions(string source, string op, object value)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
 
@@ -110,9 +110,9 @@ namespace Monkey.Tests
         [InlineData("true == true", true, "==", true)]
         [InlineData("true != false", true, "!=", false)]
         [InlineData("false == false", false, "==", false)]
-        public void TestParsingInfixExpressions(string input, object leftValue, string op, object rightValue)
+        public void TestParsingInfixExpressions(string source, object leftValue, string op, object rightValue)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
 
@@ -148,18 +148,18 @@ namespace Monkey.Tests
         [InlineData("add(a + b + c * d / f + g)", "add((((a + b) + ((c * d) / f)) + g))")]
         [InlineData("a * [1, 2, 3, 4][b * c] * d", "((a * ([1, 2, 3, 4][(b * c)])) * d)")]
         [InlineData("add(a * b[2], b[1], 2 * [1, 2][1])", "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))")]
-        public void TestOperatorPrecedenceParsing(string input, string expected)
+        public void TestOperatorPrecedenceParsing(string source, string expected)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
             Assert.Equal(expected, p.String);
         }
 
         [Theory]
         [InlineData("true;", true)]
         [InlineData("false;", false)]
-        public void TestBooleanExpression(string input, bool expected)
+        public void TestBooleanExpression(string source, bool expected)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
@@ -170,9 +170,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData("if (x < y) { x }")]
-        public void TestIfExpression(string input)
+        public void TestIfExpression(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
@@ -190,9 +190,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData("if (x < y) { x } else { y }")]
-        public void TestIfElseExpression(string input)
+        public void TestIfElseExpression(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
@@ -212,9 +212,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData("fn(x, y) { x + y; }")]
-        public void TestFunctionLiteralParsing(string input)
+        public void TestFunctionLiteralParsing(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
@@ -236,9 +236,9 @@ namespace Monkey.Tests
         [InlineData("fn() {};", new string[0])]
         [InlineData("fn(x) {};", new[] { "x" })]
         [InlineData("fn(x, y, z) {};", new[] { "x", "y", "z" })]
-        public void TestFunctionParameterParsing(string input, string[] expected)
+        public void TestFunctionParameterParsing(string source, string[] expected)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var function = Assert.IsType<FunctionLiteral>(stmt.Expression);
@@ -250,9 +250,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData("add(1, 2 * 3, 4 + 5);")]
-        public void TestCallExpressionParsing(string input)
+        public void TestCallExpressionParsing(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
@@ -270,9 +270,9 @@ namespace Monkey.Tests
         [InlineData("add();", "add", new string[0])]
         [InlineData("add(1);", "add", new[] { "1" })]
         [InlineData("add(1, 2 * 3, 4 + 5);", "add", new[] { "1", "(2 * 3)", "(4 + 5)" })]
-        public void TestCallExpressionParameterParsing(string input, string expectedIdent, string[] expectedArgs)
+        public void TestCallExpressionParameterParsing(string source, string expectedIdent, string[] expectedArgs)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var expr = Assert.IsType<CallExpression>(stmt.Expression);
@@ -286,9 +286,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData("\"hello world\"")]
-        public void TestStringLiteralExpression(string input)
+        public void TestStringLiteralExpression(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var literal = Assert.IsType<StringLiteral>(stmt.Expression);
@@ -298,9 +298,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData("[1, 2 * 2, 3 + 3]")]
-        public void TestParsingArrayLiterals(string input)
+        public void TestParsingArrayLiterals(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var array = Assert.IsType<ArrayLiteral>(stmt.Expression);
@@ -313,9 +313,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData("myArray[1 + 1]")]
-        public void TestParsingIndexExpression(string input)
+        public void TestParsingIndexExpression(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var indexExpr = Assert.IsType<IndexExpression>(stmt.Expression);
@@ -326,9 +326,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData(@"{""one"": 1, ""two"": 2, ""three"": 3}")]
-        public void TestParsingHashLiteralsStringKeys(string input)
+        public void TestParsingHashLiteralsStringKeys(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var hash = Assert.IsType<HashLiteral>(stmt.Expression);
@@ -352,9 +352,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData("{}")]
-        public void TestParsingEmptyHashLiteral(string input)
+        public void TestParsingEmptyHashLiteral(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var hash = Assert.IsType<HashLiteral>(stmt.Expression);
@@ -364,9 +364,9 @@ namespace Monkey.Tests
 
         [Theory]
         [InlineData(@"{""one"": 0 + 1, ""two"": 10 - 8, ""three"": 15 / 3}")]
-        public void TestParsingHashLiteralsWithExpressions(string input)
+        public void TestParsingHashLiteralsWithExpressions(string source)
         {
-            var p = SetupProgram(input);
+            var p = SetupProgram(source);
 
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var hash = Assert.IsType<HashLiteral>(stmt.Expression);

@@ -53,13 +53,14 @@ namespace Monkey.Core
         readonly ParserTracer _tracer;
 
         // Acts like _position and PeekChar within the lexer, but instead of
-        // pointing to characters in the input they point to current and next
+        // pointing to characters in the source they point to current and next
         // tokens. We need _curToken, the current token under examination, to
         // decide what to do next, and we need _peekToken to guide the decision
         // in case _curToken doesn't provide us with enough information, e.g.,
-        // with input "5;", _curToken is Int and we require _peekToken to decide
-        // if we're at the end of the line or at the start of an arithmetic
-        // expression. This implements a parser with one token lookahead.
+        // with source "5;", _curToken is Int and we require _peekToken to
+        // decide if we're at the end of the line or at the start of an
+        // arithmetic expression. This implements a parser with one token
+        // lookahead.
         Token _curToken;
         Token _peekToken;
 
@@ -179,7 +180,7 @@ namespace Monkey.Core
                     return ParseReturnStatement();
                 default:
                     // The only two real statement types in Monkey are let and
-                    // return. If none of those got matched, try to parse input
+                    // return. If none of those got matched, try to parse source
                     // as a pseudo ExpressionStatement.
                     return ParseExpressionStatement();
             }
