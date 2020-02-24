@@ -136,7 +136,7 @@ namespace Monkey.Core
                 // encountered and evaluated a return statement.
                 if (result is MonkeyReturnValue rv)
                     return rv.Value;
-                else if (result is MonkeyError e)
+                if (result is MonkeyError e)
                     return e;
             }
             return result;
@@ -179,9 +179,9 @@ namespace Monkey.Core
         {
             if (right == True)
                 return False;
-            else if (right == False)
+            if (right == False)
                 return True;
-            else if (right == Null)
+            if (right == Null)
                 return True;
             return False;
         }
@@ -199,7 +199,7 @@ namespace Monkey.Core
         {
             if (left.Type == ObjectType.Integer && right.Type == ObjectType.Integer)
                 return EvalIntegerInfixExpression(op, left, right);
-            else if (left.Type == ObjectType.String && right.Type == ObjectType.String)
+            if (left.Type == ObjectType.String && right.Type == ObjectType.String)
                 return EvalStringInfixExpression(op, left, right);
             // For MonkeyBooleans we can use reference comparison to check for
             // equality. It works because of our singleton True and False
@@ -207,13 +207,12 @@ namespace Monkey.Core
             // singletons. 5 == 5 would be false when comparing references. To
             // compare MonkeyIntegers we must unwrap the integer stored inside
             // each MonkeyInteger object and compare their values.
-            else if (op == "==")
+            if (op == "==")
                 return NativeBoolToBooleanObject(left == right);
-            else if (op == "!=")
+            if (op == "!=")
                 return NativeBoolToBooleanObject(left != right);
-            else if (left.Type != right.Type)
+            if (left.Type != right.Type)
                 return NewError($"Type mismatch: {left.Type} {op} {right.Type}");
-
             return NewError($"Unknown operator: {left.Type} {op} {right.Type}");
         }
 
@@ -262,9 +261,8 @@ namespace Monkey.Core
                 return condition;
             if (IsTruthy(condition))
                 return Eval(ie.Consequence, env);
-            else if (ie.Alternative != null)
+            if (ie.Alternative != null)
                 return Eval(ie.Alternative, env);
-
             return Null;
         }
 
@@ -272,11 +270,10 @@ namespace Monkey.Core
         {
             if (obj == Null)
                 return false;
-            else if (obj == True)
+            if (obj == True)
                 return true;
-            else if (obj == False)
+            if (obj == False)
                 return false;
-
             return true;
         } 
 
@@ -325,10 +322,9 @@ namespace Monkey.Core
                 var evaluated = Eval(f.Body, extendedEnv);
                 return UnwrapReturnValue(evaluated);
             }
-            else if (fn is MonkeyBuiltin b)
-                return b.Fn(args);
-            else
-                return NewError($"Not a function: {fn.Type}");
+            if (fn is MonkeyBuiltin b)
+                return b.Fn(args);            
+            return NewError($"Not a function: {fn.Type}");
         }
 
         private static MonkeyEnvironment ExtendFunctionEnv(MonkeyFunction fn, List<IMonkeyObject> args)
@@ -336,7 +332,6 @@ namespace Monkey.Core
             var env = MonkeyEnvironment.NewEnclosedEnvironment(fn.Env);
             for (var i = 0; i < fn.Parameters.Count; i++)
                 env.Set(fn.Parameters[i].Value, args[i]);
-
             return env;
         }
 
@@ -356,7 +351,7 @@ namespace Monkey.Core
         {
             if (left.Type == ObjectType.Array && index.Type == ObjectType.Integer)
                 return EvalArrayIndexExpression(left, index);
-            else if (left.Type == ObjectType.Hash)
+            if (left.Type == ObjectType.Hash)
                 return EvalHashIndexExpression(left, index);
             return NewError($"Index operator not supported {left.Type}");
         }
@@ -381,20 +376,17 @@ namespace Monkey.Core
             var hashObject = (MonkeyHash)hash;
             if (index is IHashable key)
             {
-                var ok = hashObject.Pairs.TryGetValue(key.HashKey(), out HashPair pair);
-                if (!ok)
+                var found = hashObject.Pairs.TryGetValue(key.HashKey(), out HashPair pair);
+                if (!found)
                     return Null;
-
                 return pair.Value;
             }
-            else
-                return NewError($"Unusable as hash key: {index.Type}");
+            return NewError($"Unusable as hash key: {index.Type}");
         }
 
         private static IMonkeyObject EvalHashLiteral(HashLiteral node, MonkeyEnvironment env)
         {
             var pairs = new Dictionary<HashKey, HashPair>();
-
             foreach (var kv in node.Pairs)
             {
                 var key = Eval(kv.Key, env);
@@ -414,7 +406,6 @@ namespace Monkey.Core
                 else
                     return NewError($"Unusable as hash key: {key.GetType()}");
             }
-
             return new MonkeyHash { Pairs = pairs };
         }
     }

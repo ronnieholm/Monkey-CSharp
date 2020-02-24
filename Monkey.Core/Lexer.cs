@@ -175,18 +175,16 @@ namespace Monkey.Core
                         tok = new Token(type, ident);
                         return tok;
                     }
-                    else if (IsDigit(_ch))
+                    if (IsDigit(_ch))
                     {
                         var type = TokenType.Int;
                         var literal = ReadNumber();
                         return new Token(type, literal);
                     }
-                    else
-                    {
-                        tok = new Token(TokenType.Illegal, _ch.ToString());
-                        ReadChar();
-                        return tok;
-                    }
+                    
+                    tok = new Token(TokenType.Illegal, _ch.ToString());
+                    ReadChar();
+                    return tok;
             }
 
             ReadChar();
