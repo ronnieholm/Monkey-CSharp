@@ -199,9 +199,7 @@ namespace Monkey.Core
             NextToken();
             var value = ParseExpression(PrecedenceLevel.Lowest);
             if (PeekTokenIs(TokenType.Semicolon))
-            {
                 NextToken();
-            }
 
             return new LetStatement(token, name, value);
         }
@@ -309,11 +307,11 @@ namespace Monkey.Core
         private Expression ParsePrefixExpression()
         {
             _tracer.Trace(nameof(ParsePrefixExpression));
-            var expr = new PrefixExpression(_curToken, _curToken.Literal);
+            var token = _curToken;
             NextToken();
-            expr.Right = ParseExpression(PrecedenceLevel.Prefix);
+            var right = ParseExpression(PrecedenceLevel.Prefix);
             _tracer.Untrace("ParsePrefixExpression");
-            return expr;
+            return new PrefixExpression(token, token.Literal, right);
         }
 
         private void NoPrefixParseFnError(TokenType type) =>

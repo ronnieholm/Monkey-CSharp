@@ -106,13 +106,14 @@ namespace Monkey.Core
     public class PrefixExpression : Expression
     {
         public string Operator { get; }
-        public Expression Right;
+        public Expression Right { get; }
         public override string String => $"({Operator}{Right.String})";
 
-        public PrefixExpression(Token token, string @operator)
+        public PrefixExpression(Token token, string @operator, Expression right)
         {
             Token = token;
             Operator = @operator;
+            Right = right;
         }
     }
 
