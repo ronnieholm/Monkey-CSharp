@@ -21,6 +21,7 @@ namespace Monkey.Core
             return env;
         }
 
+        // TODO: Why return a tuple and not simply null if not found?
         public (IMonkeyObject, bool) Get(string name)
         {
             var ok = Store.TryGetValue(name, out IMonkeyObject value);

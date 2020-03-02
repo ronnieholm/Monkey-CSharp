@@ -282,10 +282,10 @@ namespace Monkey.Core
         private void PeekError(TokenType t) =>
             Errors.Add($"Expected next token to be {t}, got {_peekToken.Type} instead.");
 
-        private Expression ParseIdentifier() =>
+        private Identifier ParseIdentifier() =>
             new Identifier(_curToken, _curToken.Literal);
 
-        private Expression ParseIntegerLiteral()
+        private IntegerLiteral ParseIntegerLiteral()
         {
             _tracer.Trace(nameof(ParseIntegerLiteral));
             var token = _curToken;
@@ -301,7 +301,7 @@ namespace Monkey.Core
             return new IntegerLiteral(token, value);
         }
 
-        private Expression ParseBoolean() =>
+        private Boolean_ ParseBoolean() =>
             new Boolean_(_curToken, CurTokenIs(TokenType.True));
 
         private Expression ParsePrefixExpression()
@@ -317,7 +317,7 @@ namespace Monkey.Core
         private void NoPrefixParseFnError(TokenType type) =>
             Errors.Add($"No prefix parse function for {type} found");
 
-        private Expression ParseInfixExpression(Expression left)
+        private InfixExpression ParseInfixExpression(Expression left)
         {
             _tracer.Trace(nameof(ParseInfixExpression));
             var token = _curToken;
@@ -334,7 +334,7 @@ namespace Monkey.Core
             return new CallExpression(_curToken, function, arguments);
         }
 
-        private Expression ParseIndexExpression(Expression left)
+        private IndexExpression ParseIndexExpression(Expression left)
         {
             var token = _curToken;
 
@@ -360,7 +360,7 @@ namespace Monkey.Core
             return !ExpectPeek(TokenType.RParen) ? null : expr;
         }
 
-        private Expression ParseIfExpression()
+        private IfExpression ParseIfExpression()
         {
             var token = _curToken;
 
@@ -408,7 +408,7 @@ namespace Monkey.Core
             return new BlockStatement(token, statements);
         }
 
-        private Expression ParseFunctionLiteral()
+        private FunctionLiteral ParseFunctionLiteral()
         {
             var token =  _curToken;
 
@@ -451,10 +451,10 @@ namespace Monkey.Core
             return identifiers;
         }
 
-        private Expression ParseStringLiteral() =>
+        private StringLiteral ParseStringLiteral() =>
             new StringLiteral(_curToken, _curToken.Literal);
 
-        private Expression ParseArrayLiteral() =>
+        private ArrayLiteral ParseArrayLiteral() =>
             new ArrayLiteral(_curToken, ParseExpressionList(TokenType.RBracket));
 
         // Similar to ParseFunctionParameters() except it's more general and
@@ -484,7 +484,7 @@ namespace Monkey.Core
             return list;
         }
 
-        private Expression ParseHashLiteral()
+        private HashLiteral ParseHashLiteral()
         {
             var token = _curToken;
             var pairs = new Dictionary<Expression, Expression>();            
