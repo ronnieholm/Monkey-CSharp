@@ -172,18 +172,16 @@ namespace Monkey.Core
 
         private Statement ParseStatement()
         {
-            switch (_curToken.Type)
+            return _curToken.Type switch
             {
-                case TokenType.Let:
-                    return ParseLetStatement();
-                case TokenType.Return:
-                    return ParseReturnStatement();
-                default:
-                    // The only two real statement types in Monkey are let and
-                    // return. If none of those got matched, try to parse source
-                    // as a pseudo ExpressionStatement.
-                    return ParseExpressionStatement();
-            }
+                TokenType.Let => ParseLetStatement(),
+                TokenType.Return => ParseReturnStatement(),
+
+                // The only two real statement types in Monkey are let and
+                // return. If none of those got matched, try to parse source as
+                // a pseudo ExpressionStatement.
+                _ => ParseExpressionStatement()
+            };
         }
 
         private LetStatement ParseLetStatement()
@@ -224,9 +222,7 @@ namespace Monkey.Core
 
             // Expression statements end with optional semicolon.
             if (PeekTokenIs(TokenType.Semicolon))
-            {
                 NextToken();
-            }
             _tracer.Untrace("ParseExpressionStatement");
             return new ExpressionStatement(token, expression);
         }
@@ -253,7 +249,6 @@ namespace Monkey.Core
                 ok = _infixParseFns.TryGetValue(_peekToken.Type, out InfixParseFn infix);
                 if (!ok)
                     return leftExpr;
-
                 NextToken();
                 leftExpr = infix(leftExpr);
             }
@@ -287,14 +282,12 @@ namespace Monkey.Core
         {
             _tracer.Trace(nameof(ParseIntegerLiteral));
             var token = _curToken;
-
             var ok = long.TryParse(_curToken.Literal, out long value);
             if (!ok)
             {
                 Errors.Add($"Could not parse '{_curToken.Literal}' as integer");
                 return null;
-            }
-            
+            }            
             _tracer.Untrace("ParseIntegerLiteral");
             return new IntegerLiteral(token, value);
         }
@@ -335,7 +328,6 @@ namespace Monkey.Core
         private IndexExpression ParseIndexExpression(Expression left)
         {
             var token = _curToken;
-
             NextToken();
             var index = ParseExpression(PrecedenceLevel.Lowest);
 
@@ -361,13 +353,11 @@ namespace Monkey.Core
         private IfExpression ParseIfExpression()
         {
             var token = _curToken;
-
             if (!ExpectPeek(TokenType.LParen))
                 return null;
 
             NextToken();
             var condition = ParseExpression(PrecedenceLevel.Lowest);
-
             if (!ExpectPeek(TokenType.RParen))
                 return null;
             if (!ExpectPeek(TokenType.LBrace))
@@ -406,7 +396,6 @@ namespace Monkey.Core
         private FunctionLiteral ParseFunctionLiteral()
         {
             var token =  _curToken;
-
             if (!ExpectPeek(TokenType.LParen))
                 return null;
 
@@ -441,7 +430,6 @@ namespace Monkey.Core
 
             if (!ExpectPeek(TokenType.RParen))
                 return null;
-
             return identifiers;
         }
 

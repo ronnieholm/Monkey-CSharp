@@ -114,7 +114,6 @@ namespace Monkey.Core
     public class MonkeyFunction : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Function;
-
         public List<Identifier> Parameters { get; set; }
         public BlockStatement Body { get; set; }
 

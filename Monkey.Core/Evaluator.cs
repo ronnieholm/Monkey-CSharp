@@ -157,15 +157,12 @@ namespace Monkey.Core
 
         private static IMonkeyObject EvalPrefixExpression(string op, IMonkeyObject right)
         {
-            switch (op)
+            return op switch
             {
-                case "!": 
-                    return EvalBangOperatorExpression(right);
-                case "-":
-                    return EvalMinusPrefixOperatorExpression(right);
-                default:
-                    return NewError($"Unknown operator: {op}{right.Type}");
-            }
+                "!" => EvalBangOperatorExpression(right),
+                "-" => EvalMinusPrefixOperatorExpression(right),
+                _ => NewError($"Unknown operator: {op}{right.Type}")
+            };
         }
 
         private static IMonkeyObject EvalBangOperatorExpression(IMonkeyObject right)
@@ -214,27 +211,18 @@ namespace Monkey.Core
             var leftVal = ((MonkeyInteger)left).Value;
             var rightVal = ((MonkeyInteger)right).Value;
             
-            switch (op)
+            return op switch
             {
-                case "+":
-                    return new MonkeyInteger { Value = leftVal + rightVal };
-                case "-":
-                    return new MonkeyInteger { Value = leftVal - rightVal };
-                case "*":
-                    return new MonkeyInteger { Value = leftVal * rightVal };
-                case "/":
-                    return new MonkeyInteger { Value = leftVal / rightVal };
-                case "<":
-                    return NativeBoolToBooleanObject(leftVal < rightVal);
-                case ">":
-                    return NativeBoolToBooleanObject(leftVal > rightVal);
-                case "==":
-                    return NativeBoolToBooleanObject(leftVal == rightVal);
-                case "!=":
-                    return NativeBoolToBooleanObject(leftVal != rightVal);
-                default:
-                    return NewError($"Unknown operator: {left.Type} {op} {right.Type}");
-            }
+                "+" => new MonkeyInteger { Value = leftVal + rightVal },
+                "-" => new MonkeyInteger { Value = leftVal - rightVal },
+                "*" => new MonkeyInteger { Value = leftVal * rightVal },
+                "/" => new MonkeyInteger { Value = leftVal / rightVal },
+                "<" => NativeBoolToBooleanObject(leftVal < rightVal),
+                ">" => NativeBoolToBooleanObject(leftVal > rightVal),
+                "==" => NativeBoolToBooleanObject(leftVal == rightVal),
+                "!=" => NativeBoolToBooleanObject(leftVal != rightVal),
+                _ => NewError($"Unknown operator: {left.Type} {op} {right.Type}")
+            };
         }
 
         private static IMonkeyObject EvalStringInfixExpression(string op, IMonkeyObject left, IMonkeyObject right)
@@ -383,7 +371,6 @@ namespace Monkey.Core
                 var key = Eval(kv.Key, env);
                 if (IsError(key))
                     return key;
-
                 if (key is IHashable k)
                 {
                     var value = Eval(kv.Value, env);
