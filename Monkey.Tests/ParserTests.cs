@@ -23,7 +23,6 @@ namespace Monkey.Tests
         public void TestLetStatements(string source, string expectedIdentifier, object expectedValue)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
             var stmt = p.Statements[0];
             TestLetStatement(stmt, expectedIdentifier);
@@ -40,12 +39,9 @@ namespace Monkey.Tests
         public void TestReturnStatements(string source, object expected)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
-
             var stmt = p.Statements[0];
             var returnStmt = Assert.IsType<ReturnStatement>(stmt);
-
             Assert.Equal("return", returnStmt.TokenLiteral);
             TestLiteralExpression(returnStmt.ReturnValue, expected);
         }
@@ -55,11 +51,8 @@ namespace Monkey.Tests
         public void TestIdentifierExpression(string source)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
-
             Assert.IsType<Identifier>(stmt.Expression);
             var ident = (Identifier)stmt.Expression;
             Assert.Equal("foobar", ident.Value);
@@ -71,9 +64,7 @@ namespace Monkey.Tests
         public void TestIntegerLiteralExpression(string source)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var literal = Assert.IsType<IntegerLiteral>(stmt.Expression);
             Assert.Equal(5, literal.Value);
@@ -88,12 +79,9 @@ namespace Monkey.Tests
         public void TestParsingPrefixExpressions(string source, string op, object value)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var expr = Assert.IsType<PrefixExpression>(stmt.Expression);
-
             Assert.Equal(op, expr.Operator);
             TestLiteralExpression(expr.Right, value);
         }
@@ -113,11 +101,8 @@ namespace Monkey.Tests
         public void TestParsingInfixExpressions(string source, object leftValue, string op, object rightValue)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
-
             TestInfixExpression(stmt.Expression, leftValue, op, rightValue);
         }
 
@@ -160,10 +145,8 @@ namespace Monkey.Tests
         public void TestBooleanExpression(string source, bool expected)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
-
             var boolean = Assert.IsType<Boolean_>(stmt.Expression);
             Assert.Equal(expected, boolean.Value);
         }
@@ -173,18 +156,13 @@ namespace Monkey.Tests
         public void TestIfExpression(string source)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
-
             var expr = Assert.IsType<IfExpression>(stmt.Expression);
             TestInfixExpression(expr.Condition, "x", "<", "y");
-
             Assert.Single(expr.Consequence.Statements);
-
             var consequence = Assert.IsType<ExpressionStatement>(expr.Consequence.Statements[0]);
             TestIdentifier(consequence.Expression, "x");
-
             Assert.Null(expr.Alternative);
         }
 
@@ -193,18 +171,13 @@ namespace Monkey.Tests
         public void TestIfElseExpression(string source)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
-
             var expr = Assert.IsType<IfExpression>(stmt.Expression);
             TestInfixExpression(expr.Condition, "x", "<", "y");
-
             Assert.Single(expr.Consequence.Statements);
-
             var consequence = Assert.IsType<ExpressionStatement>(expr.Consequence.Statements[0]);
             TestIdentifier(consequence.Expression, "x");
-
             Assert.Single(expr.Alternative.Statements);
             var alternative = (ExpressionStatement)expr.Alternative.Statements[0];
             TestIdentifier(alternative.Expression, "y");
@@ -215,20 +188,14 @@ namespace Monkey.Tests
         public void TestFunctionLiteralParsing(string source)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
-
             var function = Assert.IsType<FunctionLiteral>(stmt.Expression);
             Assert.Equal(2, function.Parameters.Count);
-
             TestLiteralExpression(function.Parameters[0], "x");
             TestLiteralExpression(function.Parameters[1], "y");
-
             Assert.Single(function.Body.Statements);
-
             var bodyStmt = Assert.IsType<ExpressionStatement>(function.Body.Statements[0]);
-
             TestInfixExpression(bodyStmt.Expression, "x", "+", "y");
         }
 
@@ -239,7 +206,6 @@ namespace Monkey.Tests
         public void TestFunctionParameterParsing(string source, string[] expected)
         {
             var p = SetupProgram(source);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var function = Assert.IsType<FunctionLiteral>(stmt.Expression);
             Assert.Equal(expected.Length, function.Parameters.Count);
@@ -253,14 +219,11 @@ namespace Monkey.Tests
         public void TestCallExpressionParsing(string source)
         {
             var p = SetupProgram(source);
-
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var expr = Assert.IsType<CallExpression>(stmt.Expression);
-
             TestIdentifier(expr.Function, "add");
             Assert.Equal(3, expr.Arguments.Count);
-
             TestLiteralExpression(expr.Arguments[0], 1L);
             TestInfixExpression(expr.Arguments[1], 2L, "*", 3L);
             TestInfixExpression(expr.Arguments[2], 4L, "+", 5L);
@@ -273,13 +236,10 @@ namespace Monkey.Tests
         public void TestCallExpressionParameterParsing(string source, string expectedIdent, string[] expectedArgs)
         {
             var p = SetupProgram(source);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var expr = Assert.IsType<CallExpression>(stmt.Expression);
-
             TestIdentifier(expr.Function, expectedIdent);
             Assert.Equal(expectedArgs.Length, expr.Arguments.Count);
-
             for (var i = 0; i < expectedArgs.Length; i++)
                 Assert.Equal(expectedArgs[i], expr.Arguments[i].String);
         }
@@ -289,10 +249,8 @@ namespace Monkey.Tests
         public void TestStringLiteralExpression(string source)
         {
             var p = SetupProgram(source);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var literal = Assert.IsType<StringLiteral>(stmt.Expression);
-            
             Assert.Equal("hello world", literal.Value);
         }
 
@@ -301,10 +259,8 @@ namespace Monkey.Tests
         public void TestParsingArrayLiterals(string source)
         {
             var p = SetupProgram(source);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var array = Assert.IsType<ArrayLiteral>(stmt.Expression);
-
             Assert.Equal(3, array.Elements.Count);
             TestIntegerLiteral(array.Elements[0], 1L);
             TestInfixExpression(array.Elements[1], 2L, "*", 2L);
@@ -316,10 +272,8 @@ namespace Monkey.Tests
         public void TestParsingIndexExpression(string source)
         {
             var p = SetupProgram(source);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var indexExpr = Assert.IsType<IndexExpression>(stmt.Expression);
-                        
             TestIdentifier(indexExpr.Left, "myArray");
             TestInfixExpression(indexExpr.Index, 1L, "+", 1L);
         }
@@ -329,10 +283,8 @@ namespace Monkey.Tests
         public void TestParsingHashLiteralsStringKeys(string source)
         {
             var p = SetupProgram(source);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var hash = Assert.IsType<HashLiteral>(stmt.Expression);
-
             Assert.Equal(3, hash.Pairs.Count);
 
             var expected = new Dictionary<string, long>
@@ -355,10 +307,8 @@ namespace Monkey.Tests
         public void TestParsingEmptyHashLiteral(string source)
         {
             var p = SetupProgram(source);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var hash = Assert.IsType<HashLiteral>(stmt.Expression);
-
             Assert.Empty(hash.Pairs);
         }
 
@@ -367,10 +317,8 @@ namespace Monkey.Tests
         public void TestParsingHashLiteralsWithExpressions(string source)
         {
             var p = SetupProgram(source);
-
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
             var hash = Assert.IsType<HashLiteral>(stmt.Expression);
-
             Assert.Equal(3, hash.Pairs.Count);
 
             var tests = new Dictionary<string, Action<Expression>>
@@ -391,7 +339,6 @@ namespace Monkey.Tests
         private void TestIntegerLiteral(Expression il, long value)
         {
             var lit = Assert.IsType<IntegerLiteral>(il);
-
             Assert.Equal(lit.Value, value);
             Assert.Equal(lit.TokenLiteral, value.ToString());
         }
@@ -399,7 +346,6 @@ namespace Monkey.Tests
         private void TestIdentifier(Expression expr, string value)
         {
             var ident = Assert.IsType<Identifier>(expr);
-
             Assert.Equal(value, ident.Value);
             Assert.Equal(value, ident.TokenLiteral);
         }
@@ -419,7 +365,6 @@ namespace Monkey.Tests
         private void TestInfixExpression(Expression expr, Object left, string op, Object right)
         {
             var opExpr = Assert.IsType<InfixExpression>(expr);
-
             TestLiteralExpression(opExpr.Left, left);
             Assert.Equal(op, opExpr.Operator);
             TestLiteralExpression(opExpr.Right, right);
@@ -428,7 +373,6 @@ namespace Monkey.Tests
         private void TestBooleanLiteral(Expression expr, bool value)
         {
             var bo = Assert.IsType<Boolean_>(expr);
-
             Assert.Equal(value, bo.Value);
             Assert.Equal(value.ToString().ToLower(), bo.TokenLiteral);
         }
@@ -437,7 +381,6 @@ namespace Monkey.Tests
         {
             Assert.Equal("let", s.TokenLiteral);
             var l = Assert.IsType<LetStatement>(s);
-
             Assert.Equal(name, l.Name.Value);
             Assert.Equal(name, l.Name.TokenLiteral);
         }
@@ -446,11 +389,9 @@ namespace Monkey.Tests
         {
             if (p.Errors.Count == 0)
                 return;
-
             var s = "";
             foreach (var e in p.Errors)
                 s += $"{e}\n";
-
             throw new Exception($"Parser encountered {p.Errors.Count} errors\n{s}");
         }
     }

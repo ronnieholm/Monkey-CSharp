@@ -82,7 +82,6 @@ namespace Monkey.Core
                     var args = EvalExpressions(ce.Arguments, env);
                     if (args.Count == 1 && IsError(args[0]))
                         return args[0];
-
                     return ApplyFunction(function, args);
                 }         
                 case ArrayLiteral al:
@@ -90,7 +89,6 @@ namespace Monkey.Core
                     var elements = EvalExpressions(al.Elements, env);
                     if (elements.Count == 1 && IsError(elements[0]))
                         return elements[0];
-
                     return new MonkeyArray { Elements = elements };
                 }       
                 case IndexExpression ide:
@@ -102,7 +100,6 @@ namespace Monkey.Core
                     var index = Eval(ide.Index, env);
                     if (IsError(index))
                         return index;
-
                     return EvalIndexExpression(left, index);
                 }
                 case StringLiteral sl:
@@ -287,7 +284,6 @@ namespace Monkey.Core
             var inBuiltinEnvironment = MonkeyBuiltins.Builtins.TryGetValue(node.Value, out MonkeyBuiltin fn);
             if (inBuiltinEnvironment)
                 return fn;
-
             return NewError($"Identifier not found: {node.Value}");
         }
 
@@ -305,8 +301,7 @@ namespace Monkey.Core
                 if (IsError(evaluated))
                     return new List<IMonkeyObject> { evaluated };
                 result.Add(evaluated);
-            }            
-
+            }
             return result;
         }
 

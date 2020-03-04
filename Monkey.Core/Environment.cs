@@ -32,7 +32,6 @@ namespace Monkey.Core
             // caller can issue a "ERROR: Unknown identifier: foobar" error.
             if (!ok && Outer != null)
                 return Outer.Get(name);
-
             return (value, ok);
         }
 

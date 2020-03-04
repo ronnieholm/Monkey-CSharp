@@ -143,10 +143,8 @@ namespace Monkey.Tests
         public void TestErrorHandling(string source, string expected)
         {
             var evaluated = TestEval(source);
-
             Assert.IsType<MonkeyError>(evaluated);
             var errObj = (MonkeyError)evaluated;
-
             Assert.Equal(expected, errObj.Message);            
         }
 
@@ -205,10 +203,8 @@ namespace Monkey.Tests
         public void TestStringLiteral(string source, string expected)
         {
             var evaluated = TestEval(source);
-
             Assert.IsType<MonkeyString>(evaluated);
             var str = (MonkeyString)evaluated;
-
             Assert.Equal(expected, str.Value);
         }
 
@@ -217,10 +213,8 @@ namespace Monkey.Tests
         public void TestStringConcatenation(string source, string expected)
         {
             var evaluated = TestEval(source);
-
             Assert.IsType<MonkeyString>(evaluated);
             var str = (MonkeyString)evaluated;
-
             Assert.Equal(expected, str.Value);
         }
 
@@ -245,7 +239,6 @@ namespace Monkey.Tests
         public void TestBuiltinFunctions(string source, object expected)
         {
             var evaluated = TestEval(source);
-
             if (expected is int i)
                 TestIntegerObject(evaluated, (long)expected);
             else if (expected is string s)
@@ -254,16 +247,12 @@ namespace Monkey.Tests
                     Assert.Equal(s, e.Message);
             }
             else if (expected is null)
-            {
                 TestNullObject(evaluated);
-            }
             else if (expected is int[] a)
             {
                 Assert.IsType<MonkeyArray>(evaluated);
                 var array = (MonkeyArray)evaluated;
-
                 Assert.Equal(a.Length, array.Elements.Count);
-
                 for (var idx = 0; idx < a.Length; idx++)
                     TestIntegerObject(array.Elements[idx], a[idx]);
             }
@@ -298,7 +287,6 @@ namespace Monkey.Tests
         public void TestArrayIndexExpressions(string source, object expected)
         {
             var evaluated = TestEval(source);
-
             if (expected is long l)
                 TestIntegerObject(evaluated, l);
             else
@@ -333,7 +321,6 @@ namespace Monkey.Tests
             };
 
             Assert.Equal(expected.Count, result.Pairs.Count);
-
             foreach (var kv in result.Pairs)
             {
                 var pair = result.Pairs[kv.Key];
@@ -352,8 +339,7 @@ namespace Monkey.Tests
         [InlineData("{false: 5}[false]", 5L)]
         public void TestHashIndexExpressions(string source, object expected)
         {
-            var evaluated = TestEval(source);
-            
+            var evaluated = TestEval(source);            
             if (expected is long l)
                 TestIntegerObject(evaluated, l);
             else

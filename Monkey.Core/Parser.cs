@@ -200,7 +200,6 @@ namespace Monkey.Core
             var value = ParseExpression(PrecedenceLevel.Lowest);
             if (PeekTokenIs(TokenType.Semicolon))
                 NextToken();
-
             return new LetStatement(token, name, value);
         }
 
@@ -259,7 +258,6 @@ namespace Monkey.Core
                 leftExpr = infix(leftExpr);
             }
             _tracer.Untrace("ParseExpression");
-
             return leftExpr;
         }
 
@@ -376,7 +374,6 @@ namespace Monkey.Core
                 return null;
 
             var consequence = ParseBlockStatement();
-
             BlockStatement alternative = null;
             if (PeekTokenIs(TokenType.Else))
             {
@@ -385,7 +382,6 @@ namespace Monkey.Core
                     return null;
                 alternative = ParseBlockStatement();
             }
-
             return new IfExpression(token, condition, consequence, alternative);
         }
 
@@ -393,7 +389,6 @@ namespace Monkey.Core
         {
             var token = _curToken;
             var statements = new List<Statement>();
-
             NextToken();
 
             // BUG: If '}' is missing from the program, this code goes into an
@@ -416,7 +411,6 @@ namespace Monkey.Core
                 return null;
 
             var parameters = ParseFunctionParameters();
-
             if (!ExpectPeek(TokenType.LBrace))
                 return null;
 
@@ -480,7 +474,6 @@ namespace Monkey.Core
 
             if (!ExpectPeek(end))
                 return null;
-
             return list;
         }
 
@@ -494,9 +487,7 @@ namespace Monkey.Core
                 var key = ParseExpression(PrecedenceLevel.Lowest);
 
                 if (!ExpectPeek(TokenType.Colon))
-                {
                     return null;
-                }
 
                 NextToken();
                 var value = ParseExpression(PrecedenceLevel.Lowest);
@@ -508,7 +499,6 @@ namespace Monkey.Core
 
             if (!ExpectPeek(TokenType.RBrace))
                 return null;
-
             return new HashLiteral(token, pairs);
         }
 

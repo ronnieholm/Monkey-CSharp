@@ -22,7 +22,6 @@ namespace Monkey.Tests
                         new Identifier(new Token { Type = TokenType.Ident, Literal = "myVar" }, "myVar"),
                         new Identifier(new Token { Type = TokenType.Ident, Literal = "anotherVar" }, "anotherVar"))
                 });
-
             Assert.Equal("let myVar = anotherVar;", program.String);
         }
     }
