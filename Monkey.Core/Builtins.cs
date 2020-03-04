@@ -42,40 +42,33 @@ namespace Monkey.Core
         {
             if (args.Count != 1)
                 return Evaluator.NewError($"Wrong number of arguments. Got={args.Count}, want=1");
-            if (args[0] is MonkeyArray arr)
-            {
-                var length = arr.Elements.Count;
-                return length > 0 ? arr.Elements[length - 1] : Evaluator.Null;
-            }
-            return Evaluator.NewError($"Argument to 'last' must be Array. Got {args[0].Type}");
+            if (!(args[0] is MonkeyArray arr))
+                return Evaluator.NewError($"Argument to 'last' must be Array. Got {args[0].Type}");
+            var length = arr.Elements.Count;
+            return length > 0 ? arr.Elements[length - 1] : Evaluator.Null;
         }
 
         private static IMonkeyObject Rest(List<IMonkeyObject> args)
         {
             if (args.Count != 1)
                 return Evaluator.NewError($"Wrong number of arguments. Got={args.Count}, want=1");
-            if (args[0] is MonkeyArray arr)
-            {
-                var length = arr.Elements.Count;
-                if (length > 0)
-                    return new MonkeyArray { Elements = arr.Elements.Skip(1).ToList() };
-                return Evaluator.Null;
-            }
-            return Evaluator.NewError($"Argument to 'last' must be Array. Got {args[0].Type}");
+            if (!(args[0] is MonkeyArray arr))
+                return Evaluator.NewError($"Argument to 'last' must be Array. Got {args[0].Type}");
+            var length = arr.Elements.Count;
+            if (length > 0)
+                return new MonkeyArray { Elements = arr.Elements.Skip(1).ToList() };
+            return Evaluator.Null;
         }
         
         private static IMonkeyObject Push(List<IMonkeyObject> args)
         {
             if (args.Count != 2)
                 return Evaluator.NewError($"Wrong number of arguments. Got={args.Count}, want=2");
-            if (args[0] is MonkeyArray arr)
-            {
-                var length = arr.Elements.Count;
-                var newElements = arr.Elements.Skip(0).ToList();
-                newElements.Add(args[1]);
-                return new MonkeyArray { Elements = newElements };
-            }
-            return Evaluator.NewError($"Argument to 'push' must be Array. Got {args[0].Type}");
+            if (!(args[0] is MonkeyArray arr))
+                return Evaluator.NewError($"Argument to 'push' must be Array. Got {args[0].Type}");
+            var newElements = arr.Elements.Skip(0).ToList();
+            newElements.Add(args[1]);
+            return new MonkeyArray { Elements = newElements };
         }        
 
         private static IMonkeyObject Puts(List<IMonkeyObject> args)

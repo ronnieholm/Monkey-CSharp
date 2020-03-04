@@ -61,10 +61,7 @@ namespace Monkey.Core
                         return left;
 
                     var right = Eval(ie.Right, env);
-                    if (IsError(right))
-                        return right;
-
-                    return EvalInfixExpression(ie.Operator, left, right);
+                    return IsError(right) ? right : EvalInfixExpression(ie.Operator, left, right);
                 }
                 case IfExpression ife:
                     return EvalIfExpression(ife, env);
@@ -119,7 +116,6 @@ namespace Monkey.Core
 
         // Helper used within Evaluator and MonkeyBuiltins which is why it's
         // public and static.
-        // TODO: Remove and call new MonkeyError directly.
         public static MonkeyError NewError(string message) => new MonkeyError { Message = message };
 
         private static IMonkeyObject EvalProgram(List<Statement> statements, MonkeyEnvironment env)
@@ -170,7 +166,7 @@ namespace Monkey.Core
                     return EvalBangOperatorExpression(right);
                 case "-":
                     return EvalMinusPrefixOperatorExpression(right);
-                default: 
+                default:
                     return NewError($"Unknown operator: {op}{right.Type}");
             }
         }
@@ -371,7 +367,7 @@ namespace Monkey.Core
             return arrayObject.Elements[(int)idx];
         }
 
-        public static IMonkeyObject EvalHashIndexExpression(IMonkeyObject hash, IMonkeyObject index)
+        private static IMonkeyObject EvalHashIndexExpression(IMonkeyObject hash, IMonkeyObject index)
         {
             var hashObject = (MonkeyHash)hash;
             if (index is IHashable key)
