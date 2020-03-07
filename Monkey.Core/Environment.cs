@@ -6,7 +6,7 @@ namespace Monkey.Core
     public class MonkeyEnvironment
     {
         private Dictionary<string, IMonkeyObject> Store { get; set; }
-        private MonkeyEnvironment Outer { get; set; }
+        private MonkeyEnvironment? Outer { get; set; }
 
         public MonkeyEnvironment() => 
             Store = new Dictionary<string, IMonkeyObject>();

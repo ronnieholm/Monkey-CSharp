@@ -7,8 +7,8 @@ using System.Collections.Generic;
 
 namespace Monkey.Core
 {
-    using PrefixParseFn = Func<Expression>;
-    using InfixParseFn = Func<Expression, Expression>;
+    using PrefixParseFn = Func<Expression?>;
+    using InfixParseFn = Func<Expression, Expression?>;
 
     // In order to view output written to stdout, either run the tests from the
     // command line with "dotnet test Monkey.Tests", use the xUnit GUI runner,
@@ -157,6 +157,20 @@ namespace Monkey.Core
             while (!CurTokenIs(TokenType.Eof))
             {
                 var s = ParseStatement();
+
+                // Many ParseX() methods return null which bubbles up the call
+                // stack to here where null enables continued parsing on error.
+                // The alternative would be for ParseX() methods to immediately
+                // stop parsing and signal a parser error. But that wouldn't
+                // allow collecting multiple errors to improve the user
+                // experience. Instead parsing would halt on the first error. As
+                // an example, ExpectPeek() returns null if the expected token
+                // isn't found _and_ adds an error message to the Errors
+                // collection. That null bubbles up to ParseStatement() which
+                // skips adding the statement to the AST and moves on the next
+                // statement. Evaluation of the AST shouldn't be attempted in
+                // case of parser errors as the faulting parts of the program is
+                // missing from the AST, likely resulting in evaluation errors.
                 if (s != null)
                     statements.Add(s);
                 NextToken();
@@ -170,7 +184,7 @@ namespace Monkey.Core
             _peekToken = _lexer.NextToken();
         }
 
-        private Statement ParseStatement()
+        private Statement? ParseStatement()
         {
             return _curToken.Type switch
             {
@@ -184,7 +198,7 @@ namespace Monkey.Core
             };
         }
 
-        private LetStatement ParseLetStatement()
+        private LetStatement? ParseLetStatement()
         {
             var token = _curToken;
             if (!ExpectPeek(TokenType.Ident))
@@ -196,29 +210,38 @@ namespace Monkey.Core
 
             NextToken();
             var value = ParseExpression(PrecedenceLevel.Lowest);
+            
+            // Whenever a sub-parser such as ParseExpression() returns null, we
+            // want to bubble up that null to ParseProgram() so that it can skip
+            // adding the statement to the AST.
+            if (value == null)
+                return null;
             if (PeekTokenIs(TokenType.Semicolon))
                 NextToken();
             return new LetStatement(token, name, value);
         }
 
-        private ReturnStatement ParseReturnStatement()
+        private ReturnStatement? ParseReturnStatement()
         {
             var token = _curToken;
             NextToken();
             var returnValue = ParseExpression(PrecedenceLevel.Lowest);
-
+            if (returnValue == null)
+                return null;
             if (PeekTokenIs(TokenType.Semicolon))
                 NextToken();
             return new ReturnStatement(token, returnValue);
         }
 
-        private ExpressionStatement ParseExpressionStatement()
+        private ExpressionStatement? ParseExpressionStatement()
         {
             _tracer.Trace(nameof(ParseExpressionStatement));
             var token = _curToken;
 
             // Pass in lowest precedence since we haven't parsed anything yet.
             var expression = ParseExpression(PrecedenceLevel.Lowest);
+            if (expression == null)
+                return null;
 
             // Expression statements end with optional semicolon.
             if (PeekTokenIs(TokenType.Semicolon))
@@ -227,7 +250,7 @@ namespace Monkey.Core
             return new ExpressionStatement(token, expression);
         }
 
-        private Expression ParseExpression(PrecedenceLevel precedence)
+        private Expression? ParseExpression(PrecedenceLevel precedence)
         {
             _tracer.Trace(nameof(ParseExpression));
             var ok = _prefixParseFns.TryGetValue(_curToken.Type, out PrefixParseFn prefix);
@@ -237,6 +260,8 @@ namespace Monkey.Core
                 return null;
             }
             var leftExpr = prefix();
+            if (leftExpr == null)
+                return null;
 
             // precedence is what the Pratt paper refers to as right-binding
             // power and PeekPrecedence() is what it refers to as left-binding
@@ -251,6 +276,8 @@ namespace Monkey.Core
                     return leftExpr;
                 NextToken();
                 leftExpr = infix(leftExpr);
+                if (leftExpr == null)
+                    return null;                
             }
             _tracer.Untrace("ParseExpression");
             return leftExpr;
@@ -278,7 +305,7 @@ namespace Monkey.Core
         private Identifier ParseIdentifier() =>
             new Identifier(_curToken, _curToken.Literal);
 
-        private IntegerLiteral ParseIntegerLiteral()
+        private IntegerLiteral? ParseIntegerLiteral()
         {
             _tracer.Trace(nameof(ParseIntegerLiteral));
             var token = _curToken;
@@ -295,12 +322,14 @@ namespace Monkey.Core
         private Boolean_ ParseBoolean() =>
             new Boolean_(_curToken, CurTokenIs(TokenType.True));
 
-        private Expression ParsePrefixExpression()
+        private Expression? ParsePrefixExpression()
         {
             _tracer.Trace(nameof(ParsePrefixExpression));
             var token = _curToken;
             NextToken();
             var right = ParseExpression(PrecedenceLevel.Prefix);
+            if (right == null)
+                return null;
             _tracer.Untrace("ParsePrefixExpression");
             return new PrefixExpression(token, token.Literal, right);
         }
@@ -308,28 +337,34 @@ namespace Monkey.Core
         private void NoPrefixParseFnError(TokenType type) =>
             Errors.Add($"No prefix parse function for {type} found");
 
-        private InfixExpression ParseInfixExpression(Expression left)
+        private InfixExpression? ParseInfixExpression(Expression left)
         {
             _tracer.Trace(nameof(ParseInfixExpression));
             var token = _curToken;
             var p = CurPrecedence();
             NextToken();
             var right = ParseExpression(p);
+            if (right == null)
+                return null;
             _tracer.Untrace("ParseInfixExpression");
             return new InfixExpression(token, token.Literal, left, right);
         }
 
-        private Expression ParseCallExpression(Expression function)
+        private Expression? ParseCallExpression(Expression function)
         {
             var arguments = ParseExpressionList(TokenType.RParen);
+            if (arguments == null)
+                return null;
             return new CallExpression(_curToken, function, arguments);
         }
 
-        private IndexExpression ParseIndexExpression(Expression left)
+        private IndexExpression? ParseIndexExpression(Expression left)
         {
             var token = _curToken;
             NextToken();
             var index = ParseExpression(PrecedenceLevel.Lowest);
+            if (index == null)
+                return null;
 
             // BUG: Attempting to parse "{}[""foo""" with a missing ] causes
             // null to be returned. The null is passed to Eval() but since no
@@ -343,14 +378,14 @@ namespace Monkey.Core
             return new IndexExpression(token, left, index);
         }
 
-        private Expression ParseGroupedExpression()
+        private Expression? ParseGroupedExpression()
         {
             NextToken();
             var expr = ParseExpression(PrecedenceLevel.Lowest);
             return !ExpectPeek(TokenType.RParen) ? null : expr;
         }
 
-        private IfExpression ParseIfExpression()
+        private IfExpression? ParseIfExpression()
         {
             var token = _curToken;
             if (!ExpectPeek(TokenType.LParen))
@@ -358,13 +393,15 @@ namespace Monkey.Core
 
             NextToken();
             var condition = ParseExpression(PrecedenceLevel.Lowest);
+            if (condition == null)
+                return null;
             if (!ExpectPeek(TokenType.RParen))
                 return null;
             if (!ExpectPeek(TokenType.LBrace))
                 return null;
 
             var consequence = ParseBlockStatement();
-            BlockStatement alternative = null;
+            BlockStatement? alternative = null;
             if (PeekTokenIs(TokenType.Else))
             {
                 NextToken();
@@ -393,13 +430,15 @@ namespace Monkey.Core
             return new BlockStatement(token, statements);
         }
 
-        private FunctionLiteral ParseFunctionLiteral()
+        private FunctionLiteral? ParseFunctionLiteral()
         {
             var token =  _curToken;
             if (!ExpectPeek(TokenType.LParen))
                 return null;
 
             var parameters = ParseFunctionParameters();
+            if (parameters == null)
+                return null;
             if (!ExpectPeek(TokenType.LBrace))
                 return null;
 
@@ -407,7 +446,7 @@ namespace Monkey.Core
             return new FunctionLiteral(token, parameters, body);
         }
 
-        private List<Identifier> ParseFunctionParameters()
+        private List<Identifier>? ParseFunctionParameters()
         {
             var identifiers = new List<Identifier>();
             if (PeekTokenIs(TokenType.RParen))
@@ -436,12 +475,15 @@ namespace Monkey.Core
         private StringLiteral ParseStringLiteral() =>
             new StringLiteral(_curToken, _curToken.Literal);
 
-        private ArrayLiteral ParseArrayLiteral() =>
-            new ArrayLiteral(_curToken, ParseExpressionList(TokenType.RBracket));
+        private ArrayLiteral? ParseArrayLiteral()
+        {
+            var expr = ParseExpressionList(TokenType.RBracket);
+            return expr == null ? null: new ArrayLiteral(_curToken, expr);
+        }
 
         // Similar to ParseFunctionParameters() except it's more general and
         // returns a list of expression rather than a list of identifiers.
-        private List<Expression> ParseExpressionList(TokenType end)
+        private List<Expression>? ParseExpressionList(TokenType end)
         {
             var list = new List<Expression>();
             if (PeekTokenIs(end))
@@ -451,13 +493,19 @@ namespace Monkey.Core
             }
 
             NextToken();
-            list.Add(ParseExpression(PrecedenceLevel.Lowest));
+            var expr = ParseExpression(PrecedenceLevel.Lowest);
+            if (expr == null)
+                return null;
+            list.Add(expr);
 
             while (PeekTokenIs(TokenType.Comma))
             {
                 NextToken();
                 NextToken();
-                list.Add(ParseExpression(PrecedenceLevel.Lowest));
+                var expr1 = ParseExpression(PrecedenceLevel.Lowest);
+                if (expr1 == null)
+                    return null;
+                list.Add(expr1);
             }
 
             if (!ExpectPeek(end))
@@ -465,7 +513,7 @@ namespace Monkey.Core
             return list;
         }
 
-        private HashLiteral ParseHashLiteral()
+        private HashLiteral? ParseHashLiteral()
         {
             var token = _curToken;
             var pairs = new Dictionary<Expression, Expression>();            
@@ -473,12 +521,16 @@ namespace Monkey.Core
             {
                 NextToken();
                 var key = ParseExpression(PrecedenceLevel.Lowest);
+                if (key == null)
+                    return null;
 
                 if (!ExpectPeek(TokenType.Colon))
                     return null;
 
                 NextToken();
                 var value = ParseExpression(PrecedenceLevel.Lowest);
+                if (value == null)
+                    return null;
                 pairs.Add(key, value);
 
                 if (!PeekTokenIs(TokenType.RBrace) && !ExpectPeek(TokenType.Comma))

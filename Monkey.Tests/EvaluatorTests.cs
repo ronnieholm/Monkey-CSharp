@@ -312,10 +312,10 @@ namespace Monkey.Tests
 
             var expected = new Dictionary<HashKey, long>
             {
-                { new MonkeyString { Value = "one" }.HashKey(), 1 },
-                { new MonkeyString { Value = "two" }.HashKey(), 2 },
-                { new MonkeyString { Value = "three" }.HashKey(), 3 },
-                { new MonkeyInteger { Value = 4 }.HashKey(), 4 },
+                { new MonkeyString("one").HashKey(), 1 },
+                { new MonkeyString("two").HashKey(), 2 },
+                { new MonkeyString("three").HashKey(), 3 },
+                { new MonkeyInteger(4).HashKey(), 4 },
                 { Evaluator.True.HashKey(), 5 },
                 { Evaluator.False.HashKey(), 6 }
             };

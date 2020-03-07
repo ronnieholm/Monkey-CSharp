@@ -13,7 +13,7 @@ namespace Monkey.Tests
             // sense. That's okay, because the lexer's job isn't to tell use
             // whether code makes sense, works, or contains errors. That comes
             // later. The lexer should only turn the source into tokens.
-            var source = @"
+            const string source = @"
                 let five = 5;
                 let ten = 10;
                 let add = fn(x, y) {

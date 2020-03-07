@@ -65,8 +65,13 @@ namespace Monkey.Core
     public class MonkeyInteger : IMonkeyObject, IHashable
     {
         public ObjectType Type => ObjectType.Integer;
-        public long Value { get; set; }
+        public long Value { get; }
         public string Inspect() => Value.ToString();
+
+        public MonkeyInteger(long value)
+        {
+            Value = value;
+        }
 
         public HashKey HashKey() =>
             new HashKey { Type = Type, Value = (ulong)Value };
@@ -97,8 +102,14 @@ namespace Monkey.Core
     public class MonkeyReturnValue : IMonkeyObject
     {
         public ObjectType Type => ObjectType.ReturnValue;
-        public IMonkeyObject Value { get; set; }
-        public string Inspect() => Value.Inspect();
+        public IMonkeyObject Value { get; }
+
+        public MonkeyReturnValue(IMonkeyObject value)
+        {
+            Value = value;
+        }
+
+        public string Inspect() => Value == null ? "null" : Value.Inspect();
     }
 
     // MonkeyError wraps a string error message. In a production language, we'd
@@ -107,20 +118,33 @@ namespace Monkey.Core
     public class MonkeyError : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Error;
-        public string Message;
+        public string Message { get; }
+
+        public MonkeyError(string message)
+        {
+            Message = message;
+        }
+
         public string Inspect() => $"Error: {Message}";
     }
 
     public class MonkeyFunction : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Function;
-        public List<Identifier> Parameters { get; set; }
-        public BlockStatement Body { get; set; }
+        public List<Identifier> Parameters { get; }
+        public BlockStatement Body { get; }
 
         // Functions carry their own environment. This allows for closures to
         // "close over" the environment they're defined in and allows the
         // function to later access values within the closure.
-        public MonkeyEnvironment Env { get; set; }
+        public MonkeyEnvironment Env { get; }
+
+        public MonkeyFunction(List<Identifier> parameters, BlockStatement body, MonkeyEnvironment env)
+        {
+            Parameters = parameters;
+            Body = body;
+            Env = env;
+        }
 
         public string Inspect()
         {
@@ -131,9 +155,14 @@ namespace Monkey.Core
 
     public class MonkeyString : IMonkeyObject, IHashable
     {
-        public string Value { get; set; }
+        public string Value { get; }
         public string Inspect() => Value;
         public ObjectType Type => ObjectType.String;
+
+        public MonkeyString(string value)
+        {
+            Value = value;
+        }
 
         public HashKey HashKey()
         {
@@ -147,15 +176,25 @@ namespace Monkey.Core
     public class MonkeyBuiltin : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Builtin;
-        public BuiltinFunction Fn { get; set; }
+        public BuiltinFunction Fn { get; }
+
+        public MonkeyBuiltin(BuiltinFunction fn)
+        {
+            Fn = fn;
+        }
+
         public string Inspect() => "builtin function";
     }
 
     public class MonkeyArray : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Array;
+        public List<IMonkeyObject> Elements { get; }
 
-        public List<IMonkeyObject> Elements { get; set; }
+        public MonkeyArray(List<IMonkeyObject> elements)
+        {
+            Elements = elements;
+        }
 
         public string Inspect()
         {
@@ -166,15 +205,25 @@ namespace Monkey.Core
 
     public class HashPair
     {
-        public IMonkeyObject Key { get; set; }
-        public IMonkeyObject Value { get; set; }
+        public IMonkeyObject Key { get; }
+        public IMonkeyObject Value { get; }
+
+        public HashPair(IMonkeyObject key, IMonkeyObject value)
+        {
+            Key = key;
+            Value = value;
+        }
     }
 
     public class MonkeyHash : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Hash;
+        public Dictionary<HashKey, HashPair> Pairs { get; }
 
-        public Dictionary<HashKey, HashPair> Pairs { get; set; }
+        public MonkeyHash(Dictionary<HashKey, HashPair> pairs)
+        {
+            Pairs = pairs;
+        }
 
         public string Inspect()
         {

@@ -8,10 +8,10 @@ namespace Monkey.Tests
         [Fact]
         public void TestStringHashKey()
         {
-            var hello1 = new MonkeyString { Value = "Hello world" };
-            var hello2 = new MonkeyString { Value = "Hello world" };
-            var diff1 = new MonkeyString { Value = "My name is johnny" };
-            var diff2 = new MonkeyString { Value = "My name is johnny" };
+            var hello1 = new MonkeyString("Hello world");
+            var hello2 = new MonkeyString("Hello world");
+            var diff1 = new MonkeyString("My name is johnny");
+            var diff2 = new MonkeyString("My name is johnny");
 
             // General rule for every hashable types: object with same content
             // have different hash keys.
@@ -42,10 +42,10 @@ namespace Monkey.Tests
         [Fact]
         public void TestIntegerHashKey()
         {
-            var one1 = new MonkeyInteger { Value = 1 };
-            var one2 = new MonkeyInteger { Value = 1 };
-            var two1 = new MonkeyInteger { Value = 2 };
-            var two2 = new MonkeyInteger { Value = 2 };
+            var one1 = new MonkeyInteger(1);
+            var one2 = new MonkeyInteger(1);
+            var two1 = new MonkeyInteger(2);
+            var two2 = new MonkeyInteger(2);
 
             Assert.Equal(one1.HashKey(), one2.HashKey());
             Assert.Equal(two1.HashKey(), two2.HashKey());

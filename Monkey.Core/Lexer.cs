@@ -47,8 +47,8 @@ namespace Monkey.Core
 
     public struct Token
     {
-        public TokenType Type { get; set; }
-        public string Literal { get; set; }
+        public TokenType Type { get; }
+        public string Literal { get; }
 
         public Token(TokenType type, string literal)
         {

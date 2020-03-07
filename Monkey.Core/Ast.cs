@@ -161,7 +161,7 @@ namespace Monkey.Core
     {
         public Expression Condition { get; }
         public BlockStatement Consequence { get; }
-        public BlockStatement Alternative { get; }
+        public BlockStatement? Alternative { get; }
         public override string String        
         {
             get
@@ -173,7 +173,7 @@ namespace Monkey.Core
             }
         }
 
-        public IfExpression(Token token, Expression condition, BlockStatement consequence, BlockStatement alternative)
+        public IfExpression(Token token, Expression condition, BlockStatement consequence, BlockStatement? alternative)
         {
             Token = token;
             Condition = condition;

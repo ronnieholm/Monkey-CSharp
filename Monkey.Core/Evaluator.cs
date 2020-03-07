@@ -32,7 +32,7 @@ namespace Monkey.Core
                     // bubbling up far from their origin.
                     if (IsError(val))
                         return val;
-                    return new MonkeyReturnValue { Value = val };
+                    return new MonkeyReturnValue(val);
                 }
                 case LetStatement ls:
                 {
@@ -44,7 +44,7 @@ namespace Monkey.Core
 
                 // Expressions
                 case IntegerLiteral il:
-                    return new MonkeyInteger { Value = il.Value };
+                    return new MonkeyInteger(il.Value);
                 case Boolean_ b:
                     return NativeBoolToBooleanObject(b.Value);
                 case PrefixExpression pe:
@@ -59,7 +59,6 @@ namespace Monkey.Core
                     var left = Eval(ie.Left, env);
                     if (IsError(left))
                         return left;
-
                     var right = Eval(ie.Right, env);
                     return IsError(right) ? right : EvalInfixExpression(ie.Operator, left, right);
                 }
@@ -69,9 +68,7 @@ namespace Monkey.Core
                     return EvalIdentifier(i, env);
                 case FunctionLiteral fl:
                 {
-                    var parameters = fl.Parameters;   
-                    var body = fl.Body;
-                    return new MonkeyFunction { Parameters = parameters, Env = env, Body = fl.Body };
+                    return new MonkeyFunction(fl.Parameters, fl.Body, env);
                 }
                 case CallExpression ce:
                 {
@@ -89,7 +86,7 @@ namespace Monkey.Core
                     var elements = EvalExpressions(al.Elements, env);
                     if (elements.Count == 1 && IsError(elements[0]))
                         return elements[0];
-                    return new MonkeyArray { Elements = elements };
+                    return new MonkeyArray(elements);
                 }       
                 case IndexExpression ide:
                 {
@@ -103,7 +100,7 @@ namespace Monkey.Core
                     return EvalIndexExpression(left, index);
                 }
                 case StringLiteral sl:
-                    return new MonkeyString { Value = sl.Value };
+                    return new MonkeyString(sl.Value);
                 case HashLiteral hl:
                     return EvalHashLiteral(hl, env);
                 default:
@@ -111,13 +108,9 @@ namespace Monkey.Core
             }
         }
 
-        // Helper used within Evaluator and MonkeyBuiltins which is why it's
-        // public and static.
-        public static MonkeyError NewError(string message) => new MonkeyError { Message = message };
-
         private static IMonkeyObject EvalProgram(List<Statement> statements, MonkeyEnvironment env)
         {
-            IMonkeyObject result = null;
+            IMonkeyObject result = Evaluator.Null;
             foreach (var stmt in statements)
             {
                 result = Eval(stmt, env);
@@ -137,7 +130,7 @@ namespace Monkey.Core
 
         private static IMonkeyObject EvalBlockStatement(List<Statement> statements, MonkeyEnvironment env)
         {
-            IMonkeyObject result = null;
+            IMonkeyObject result = Evaluator.Null;
             foreach (var stmt in statements)
             {
                 result = Eval(stmt, env);
@@ -161,7 +154,7 @@ namespace Monkey.Core
             {
                 "!" => EvalBangOperatorExpression(right),
                 "-" => EvalMinusPrefixOperatorExpression(right),
-                _ => NewError($"Unknown operator: {op}{right.Type}")
+                _ => new MonkeyError($"Unknown operator: {op}{right.Type}")
             };
         }
 
@@ -179,10 +172,9 @@ namespace Monkey.Core
         private static IMonkeyObject EvalMinusPrefixOperatorExpression(IMonkeyObject right)
         {
             if (right.Type != ObjectType.Integer)
-                return NewError($"Unknown operator: -{right.Type}");
-
+                return new MonkeyError($"Unknown operator: -{right.Type}");
             var value = ((MonkeyInteger)right).Value;
-            return new MonkeyInteger { Value = -value };
+            return new MonkeyInteger(-value);
         }
 
         private static IMonkeyObject EvalInfixExpression(string op, IMonkeyObject left, IMonkeyObject right)
@@ -202,8 +194,8 @@ namespace Monkey.Core
             if (op == "!=")
                 return NativeBoolToBooleanObject(left != right);
             if (left.Type != right.Type)
-                return NewError($"Type mismatch: {left.Type} {op} {right.Type}");
-            return NewError($"Unknown operator: {left.Type} {op} {right.Type}");
+                return new MonkeyError($"Type mismatch: {left.Type} {op} {right.Type}");
+            return new MonkeyError($"Unknown operator: {left.Type} {op} {right.Type}");
         }
 
         private static IMonkeyObject EvalIntegerInfixExpression(string op, IMonkeyObject left, IMonkeyObject right)
@@ -213,26 +205,26 @@ namespace Monkey.Core
             
             return op switch
             {
-                "+" => new MonkeyInteger { Value = leftVal + rightVal },
-                "-" => new MonkeyInteger { Value = leftVal - rightVal },
-                "*" => new MonkeyInteger { Value = leftVal * rightVal },
-                "/" => new MonkeyInteger { Value = leftVal / rightVal },
+                "+" => new MonkeyInteger(leftVal + rightVal),
+                "-" => new MonkeyInteger(leftVal - rightVal),
+                "*" => new MonkeyInteger(leftVal * rightVal),
+                "/" => new MonkeyInteger(leftVal / rightVal),
                 "<" => NativeBoolToBooleanObject(leftVal < rightVal),
                 ">" => NativeBoolToBooleanObject(leftVal > rightVal),
                 "==" => NativeBoolToBooleanObject(leftVal == rightVal),
                 "!=" => NativeBoolToBooleanObject(leftVal != rightVal),
-                _ => NewError($"Unknown operator: {left.Type} {op} {right.Type}")
+                _ => new MonkeyError($"Unknown operator: {left.Type} {op} {right.Type}")
             };
         }
 
         private static IMonkeyObject EvalStringInfixExpression(string op, IMonkeyObject left, IMonkeyObject right)
         {
             if (op != "+")
-                return NewError($"Unknown operator: {left.Type} {op} {right.Type}");
+                return new MonkeyError($"Unknown operator: {left.Type} {op} {right.Type}");
 
             var leftVal = ((MonkeyString)left).Value;
             var rightVal = ((MonkeyString)right).Value;          
-            return new MonkeyString { Value = leftVal + rightVal };
+            return new MonkeyString(leftVal + rightVal);
         }
 
         private static IMonkeyObject EvalIfExpression(IfExpression ie, MonkeyEnvironment env)
@@ -260,8 +252,7 @@ namespace Monkey.Core
 
         private static MonkeyBoolean NativeBoolToBooleanObject(bool value) => value ? True : False;
 
-        private static bool IsError(IMonkeyObject obj) => 
-            obj != null && obj.Type == ObjectType.Error;
+        private static bool IsError(IMonkeyObject obj) => obj.Type == ObjectType.Error;
 
         private static IMonkeyObject EvalIdentifier(Identifier node, MonkeyEnvironment env)
         {
@@ -272,7 +263,7 @@ namespace Monkey.Core
             var inBuiltinEnvironment = MonkeyBuiltins.Builtins.TryGetValue(node.Value, out MonkeyBuiltin fn);
             if (inBuiltinEnvironment)
                 return fn;
-            return NewError($"Identifier not found: {node.Value}");
+            return new MonkeyError($"Identifier not found: {node.Value}");
         }
 
         private static List<IMonkeyObject> EvalExpressions(List<Expression> exps, MonkeyEnvironment env)
@@ -303,7 +294,7 @@ namespace Monkey.Core
             }
             if (fn is MonkeyBuiltin b)
                 return b.Fn(args);            
-            return NewError($"Not a function: {fn.Type}");
+            return new MonkeyError($"Not a function: {fn.Type}");
         }
 
         private static MonkeyEnvironment ExtendFunctionEnv(MonkeyFunction fn, List<IMonkeyObject> args)
@@ -332,7 +323,7 @@ namespace Monkey.Core
                 return EvalArrayIndexExpression(left, index);
             if (left.Type == ObjectType.Hash)
                 return EvalHashIndexExpression(left, index);
-            return NewError($"Index operator not supported {left.Type}");
+            return new MonkeyError($"Index operator not supported {left.Type}");
         }
 
         private static IMonkeyObject EvalArrayIndexExpression(IMonkeyObject array, IMonkeyObject index)
@@ -360,7 +351,7 @@ namespace Monkey.Core
                     return Null;
                 return pair.Value;
             }
-            return NewError($"Unusable as hash key: {index.Type}");
+            return new MonkeyError($"Unusable as hash key: {index.Type}");
         }
 
         private static IMonkeyObject EvalHashLiteral(HashLiteral node, MonkeyEnvironment env)
@@ -378,13 +369,13 @@ namespace Monkey.Core
                         return value;
 
                     var hashKey = k.HashKey();
-                    var hashPair = new HashPair { Key = key, Value = value };
+                    var hashPair = new HashPair(key, value);
                     pairs.Add(hashKey, hashPair);
                 }
                 else
-                    return NewError($"Unusable as hash key: {key.GetType()}");
+                    return new MonkeyError($"Unusable as hash key: {key.GetType()}");
             }
-            return new MonkeyHash { Pairs = pairs };
+            return new MonkeyHash(pairs);
         }
     }
 }
