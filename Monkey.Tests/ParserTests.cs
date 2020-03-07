@@ -178,9 +178,15 @@ namespace Monkey.Tests
             Assert.Single(expr.Consequence.Statements);
             var consequence = Assert.IsType<ExpressionStatement>(expr.Consequence.Statements[0]);
             TestIdentifier(consequence.Expression, "x");
-            Assert.Single(expr.Alternative.Statements);
-            var alternative = (ExpressionStatement)expr.Alternative.Statements[0];
-            TestIdentifier(alternative.Expression, "y");
+
+            if (expr.Alternative != null)
+            {
+                Assert.Single(expr.Alternative.Statements);
+                var alternative = (ExpressionStatement)expr.Alternative.Statements[0];
+                TestIdentifier(alternative.Expression, "y");
+            }
+            else
+                Assert.NotNull(expr.Alternative);
         }
 
         [Theory]
