@@ -1,6 +1,15 @@
 using System;
 using System.Collections.Generic;
 
+// An alternative, perhaps more object oriented, approach to evaluation would be
+// adding an "IMonkeyObject Eval(Evaluator e)" method to each AST node. The
+// Evaluator would make shared state available to each AST node through the
+// Evaluator argument. The Evaluator would kick of evaluation by looping through
+// each statement, dynamically dispatching to each AST's Eval() method, and so
+// would would the Eval() method on each AST node. For an example of this
+// approach, see Browser hacking: Let's build a JavaScript engine for
+// SerenityOS! (https://www.youtube.com/watch?v=byNwCHc_IIM).
+
 namespace Monkey.Core
 {
     public static class Evaluator
