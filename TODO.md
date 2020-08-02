@@ -11,9 +11,9 @@
     Statements -> LetStatement | IfStatement | ReturnStatement | ExpressionStatement
     LetStatement -> Identifier "=" Expression ";"
     IfStatement -> "if" "(" Expression ")" BlockStatement ("else" BlockStatement)?
-    Returnstatement -> "return"? Expression ";"
+    ReturnStatement -> "return"? Expression ";"
     BlockStatement -> "{" Statements? "}"
-    Expressionstatement -> Expression ";"
+    ExpressionStatement -> Expression ";"
 
     Expression -> Equality
     Equality -> Comparison ("==" | "!=") Comparison
@@ -22,4 +22,4 @@
     Multiplication -> Unary ("*"|"/") Unary
     Unary -> ( "!" | "-") Unary | Primary
 
-    Primary -> INTEGER | STRING | Idenfier | "false" | "true" | "null" | "(" expression ")"
+    Primary -> INTEGER | STRING | Identifier | "false" | "true" | "null" | "(" expression ")"
