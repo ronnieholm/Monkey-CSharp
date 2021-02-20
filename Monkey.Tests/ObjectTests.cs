@@ -4,7 +4,7 @@ using Monkey.Core;
 namespace Monkey.Tests
 {
     public class ObjectTests
-    {        
+    {
         [Fact]
         public void TestStringHashKey()
         {
@@ -16,7 +16,7 @@ namespace Monkey.Tests
             // General rule for every hashable types: object with same content
             // have different hash keys.
             Assert.Equal(hello1.HashKey(), hello2.HashKey());
-  
+
             // General rule for every hashable type: object with same content
             // have different hash keys.
             Assert.Equal(diff1.HashKey(), diff2.HashKey());

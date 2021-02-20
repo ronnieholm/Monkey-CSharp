@@ -25,7 +25,7 @@ namespace Monkey.Core
         private static void DecIdent() => _traceLevel--;
         private static string IdentLevel() => new string(TraceIdentPlaceholder, _traceLevel);
 
-        private void TracePrint(string message) 
+        private void TracePrint(string message)
         {
             if (_withTracing)
                 Console.WriteLine($"{IdentLevel()}{message}");
@@ -108,7 +108,7 @@ namespace Monkey.Core
             { TokenType.Slash, PrecedenceLevel.Product },
             { TokenType.Asterisk, PrecedenceLevel.Product },
             { TokenType.LParen, PrecedenceLevel.Call },
-            { TokenType.LBracket, PrecedenceLevel.Index }            
+            { TokenType.LBracket, PrecedenceLevel.Index }
         };
 
         private void RegisterPrefix(TokenType t, PrefixParseFn fn) => _prefixParseFns.Add(t, fn);
@@ -210,7 +210,7 @@ namespace Monkey.Core
 
             NextToken();
             var value = ParseExpression(PrecedenceLevel.Lowest);
-            
+
             // Whenever a sub-parser such as ParseExpression() returns null, we
             // want to bubble up that null to ParseProgram() so that it can skip
             // adding the statement to the AST.
@@ -253,7 +253,7 @@ namespace Monkey.Core
         private Expression? ParseExpression(PrecedenceLevel precedence)
         {
             _tracer.Trace(nameof(ParseExpression));
-            var ok = _prefixParseFns.TryGetValue(_curToken.Type, out PrefixParseFn prefix);
+            var ok = _prefixParseFns.TryGetValue(_curToken.Type, out PrefixParseFn? prefix);
             if (!ok)
             {
                 NoPrefixParseFnError(_curToken.Type);
@@ -271,13 +271,13 @@ namespace Monkey.Core
             // is evaluated.
             while (!PeekTokenIs(TokenType.Semicolon) && precedence < PeekPrecedence())
             {
-                ok = _infixParseFns.TryGetValue(_peekToken.Type, out InfixParseFn infix);
+                ok = _infixParseFns.TryGetValue(_peekToken.Type, out InfixParseFn? infix);
                 if (!ok)
                     return leftExpr;
                 NextToken();
                 leftExpr = infix(leftExpr);
                 if (leftExpr == null)
-                    return null;                
+                    return null;
             }
             _tracer.Untrace("ParseExpression");
             return leftExpr;
@@ -314,7 +314,7 @@ namespace Monkey.Core
             {
                 Errors.Add($"Could not parse '{_curToken.Literal}' as integer");
                 return null;
-            }            
+            }
             _tracer.Untrace("ParseIntegerLiteral");
             return new IntegerLiteral(token, value);
         }
@@ -516,7 +516,7 @@ namespace Monkey.Core
         private HashLiteral? ParseHashLiteral()
         {
             var token = _curToken;
-            var pairs = new Dictionary<Expression, Expression>();            
+            var pairs = new Dictionary<Expression, Expression>();
             while (!PeekTokenIs(TokenType.RBrace))
             {
                 NextToken();

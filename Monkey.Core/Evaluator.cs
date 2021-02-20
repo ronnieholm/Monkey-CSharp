@@ -84,19 +84,19 @@ namespace Monkey.Core
                     var function = Eval(ce.Function, env);
                     if (IsError(function))
                         return function;
-                    
+
                     var args = EvalExpressions(ce.Arguments, env);
                     if (args.Count == 1 && IsError(args[0]))
                         return args[0];
                     return ApplyFunction(function, args);
-                }         
+                }
                 case ArrayLiteral al:
                 {
                     var elements = EvalExpressions(al.Elements, env);
                     if (elements.Count == 1 && IsError(elements[0]))
                         return elements[0];
                     return new MonkeyArray(elements);
-                }       
+                }
                 case IndexExpression ide:
                 {
                     var left = Eval(ide.Left, env);
@@ -113,7 +113,7 @@ namespace Monkey.Core
                 case HashLiteral hl:
                     return EvalHashLiteral(hl, env);
                 default:
-                    throw new Exception($"Invalid node type: {node.GetType()}");                
+                    throw new Exception($"Invalid node type: {node.GetType()}");
             }
         }
 
@@ -211,7 +211,7 @@ namespace Monkey.Core
         {
             var leftVal = ((MonkeyInteger)left).Value;
             var rightVal = ((MonkeyInteger)right).Value;
-            
+
             return op switch
             {
                 "+" => new MonkeyInteger(leftVal + rightVal),
@@ -232,7 +232,7 @@ namespace Monkey.Core
                 return new MonkeyError($"Unknown operator: {left.Type} {op} {right.Type}");
 
             var leftVal = ((MonkeyString)left).Value;
-            var rightVal = ((MonkeyString)right).Value;          
+            var rightVal = ((MonkeyString)right).Value;
             return new MonkeyString(leftVal + rightVal);
         }
 
@@ -257,7 +257,7 @@ namespace Monkey.Core
             if (obj == False)
                 return false;
             return true;
-        } 
+        }
 
         private static MonkeyBoolean NativeBoolToBooleanObject(bool value) => value ? True : False;
 
@@ -302,7 +302,7 @@ namespace Monkey.Core
                 return UnwrapReturnValue(evaluated);
             }
             if (fn is MonkeyBuiltin b)
-                return b.Fn(args);            
+                return b.Fn(args);
             return new MonkeyError($"Not a function: {fn.Type}");
         }
 
@@ -346,7 +346,7 @@ namespace Monkey.Core
                 // Some languages throw an exception when the index is out of
                 // bounds. In Monkey by definition we return Null as the result.
                 return Null;
-            }            
+            }
             return arrayObject.Elements[(int)idx];
         }
 

@@ -162,7 +162,7 @@ namespace Monkey.Core
         public Expression Condition { get; }
         public BlockStatement Consequence { get; }
         public BlockStatement? Alternative { get; }
-        public override string String        
+        public override string String
         {
             get
             {
@@ -225,7 +225,7 @@ namespace Monkey.Core
     public class ArrayLiteral : Expression
     {
         public List<Expression> Elements { get; }
-        public override string String => $"[{string.Join(", ", Elements.Select(e => e.String))}]"; 
+        public override string String => $"[{string.Join(", ", Elements.Select(e => e.String))}]";
 
         public ArrayLiteral(Token token, List<Expression> elements)
         {

@@ -25,7 +25,7 @@ namespace Monkey.Tests
         public void TestEvalIntegerExpression(string source, long expected)
         {
             var evaluated = TestEval(source);
-            TestIntegerObject(evaluated, expected);            
+            TestIntegerObject(evaluated, expected);
         }
 
         [Theory]
@@ -109,14 +109,14 @@ namespace Monkey.Tests
                 return x;
                 x + 10;
             };
-            f(10);", 10)]   
+            f(10);", 10)]
         [InlineData(@"
             let f = fn(x) {
                 let result = x + 10;
                 return result;
                 return 10;
             };
-            f(10);", 20)]                        
+            f(10);", 20)]
         public void TestReturnStatements(string source, long expected)
         {
             var evaluated = TestEval(source);
@@ -136,7 +136,7 @@ namespace Monkey.Tests
                     return true + false;
                 }
                 return 1;
-            }", "Unknown operator: Boolean + Boolean")]        
+            }", "Unknown operator: Boolean + Boolean")]
         [InlineData("foobar", "Identifier not found: foobar")]
         [InlineData("\"Hello\" - \"World\"", "Unknown operator: String - String")]
         [InlineData(@"{""name"": ""Monkey""}[fn(x) { x }];", "Unusable as hash key: Function")]
@@ -145,7 +145,7 @@ namespace Monkey.Tests
             var evaluated = TestEval(source);
             Assert.IsType<MonkeyError>(evaluated);
             var errObj = (MonkeyError)evaluated;
-            Assert.Equal(expected, errObj.Message);            
+            Assert.Equal(expected, errObj.Message);
         }
 
         [Theory]
@@ -163,7 +163,7 @@ namespace Monkey.Tests
         {
             var source = "fn(x) { x + 2; };";
             var evaluated = TestEval(source);
-            
+
             Assert.IsType<MonkeyFunction>(evaluated);
             var fn = (MonkeyFunction)evaluated;
             Assert.Single(fn.Parameters);
@@ -333,13 +333,13 @@ namespace Monkey.Tests
         [InlineData(@"{""foo"": 5}[""foo""]", 5L)]
         [InlineData(@"{""foo"": 5}[""bar""]", null)]
         [InlineData(@"let key = ""foo""; {""foo"": 5}[key]", 5L)]
-        [InlineData(@"{}[""foo""]", null)] 
+        [InlineData(@"{}[""foo""]", null)]
         [InlineData("{5: 5}[5]", 5L)]
         [InlineData("{true: 5}[true]", 5L)]
         [InlineData("{false: 5}[false]", 5L)]
         public void TestHashIndexExpressions(string source, object expected)
         {
-            var evaluated = TestEval(source);            
+            var evaluated = TestEval(source);
             if (expected is long l)
                 TestIntegerObject(evaluated, l);
             else
@@ -352,7 +352,7 @@ namespace Monkey.Tests
         {
             var lexer = new Lexer(source);
             var parser = new Parser(lexer, false);
-            var program = parser.ParseProgram();        
+            var program = parser.ParseProgram();
             var env = new MonkeyEnvironment();
             return Evaluator.Eval(program, env);
         }

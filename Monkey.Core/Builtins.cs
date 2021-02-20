@@ -59,7 +59,7 @@ namespace Monkey.Core
                 return new MonkeyArray(arr.Elements.Skip(1).ToList());
             return Evaluator.Null;
         }
-        
+
         private static IMonkeyObject Push(List<IMonkeyObject> args)
         {
             if (args.Count != 2)
@@ -69,7 +69,7 @@ namespace Monkey.Core
             var newElements = arr.Elements.Skip(0).ToList();
             newElements.Add(args[1]);
             return new MonkeyArray(newElements);
-        }        
+        }
 
         private static IMonkeyObject Puts(List<IMonkeyObject> args)
         {

@@ -14,8 +14,8 @@ namespace Monkey.Tests
             // the parser produces. Tests shows that we can add another readable
             // layer of tests for our parser by comparing the parser output with
             // a string, a feature especially handy when parsing expressions.
-            var program = new Program( 
-                new List<Statement> 
+            var program = new Program(
+                new List<Statement>
                 {
                     new LetStatement(
                         new Token(TokenType.Let, "let"),

@@ -12,7 +12,7 @@ namespace Monkey.Tests
             var lexer = new Lexer(source);
             var parser = new Parser(lexer, false);
             var program = parser.ParseProgram();
-            CheckParserErrors(parser);            
+            CheckParserErrors(parser);
             return program;
         }
 
@@ -332,7 +332,7 @@ namespace Monkey.Tests
             {
                 var literal = Assert.IsType<StringLiteral>(kv.Key);
                 var testFunc = tests[kv.Key.String];
-                testFunc(kv.Value);                
+                testFunc(kv.Value);
             }
         }
 

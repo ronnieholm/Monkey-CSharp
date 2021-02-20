@@ -160,10 +160,10 @@ namespace Monkey.Core
                     break;
                 case ']':
                     tok = new Token(TokenType.RBracket, _ch.ToString());
-                    break;            
+                    break;
                 case ':':
                     tok = new Token(TokenType.Colon, _ch.ToString());
-                    break;        
+                    break;
                 case '\0':
                     tok = new Token(TokenType.Eof, "");
                     break;

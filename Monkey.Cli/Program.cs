@@ -20,7 +20,7 @@ namespace Monkey.Cli
               '._ '-=-' _.'
                  '-----'
         ";
-        
+
         static void Main(string[] args)
         {
             const string prompt = ">> ";
@@ -41,10 +41,16 @@ namespace Monkey.Cli
                 if (args.Length == 0)
                 {
                     Write(prompt);
-                    line = ReadLine();                                   
+                    line = ReadLine();
                 }
                 else
                     line = File.ReadAllText(args[0]);
+
+                if (line == null)
+                {
+                    WriteLine("Invalid null input");
+                    continue;
+                }
 
                 var lexer = new Lexer(line);
                 var parser = new Parser(lexer, false);
@@ -55,7 +61,7 @@ namespace Monkey.Cli
                     PrintParserErrors(parser.Errors);
                     continue;
                 }
-                
+
                 var evaluated = Evaluator.Eval(program, env);
                 if (evaluated != null)
                     WriteLine(evaluated.Inspect());

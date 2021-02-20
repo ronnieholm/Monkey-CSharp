@@ -24,7 +24,7 @@ namespace Monkey.Tests
                 5 < 10 > 5;
 
                 if (5 < 10) {
-                    return true;    
+                    return true;
                 } else {
                     return false;
                 }

@@ -8,7 +8,7 @@ namespace Monkey.Core
         private Dictionary<string, IMonkeyObject> Store { get; set; }
         private MonkeyEnvironment? Outer { get; set; }
 
-        public MonkeyEnvironment() => 
+        public MonkeyEnvironment() =>
             Store = new Dictionary<string, IMonkeyObject>();
 
         private static MonkeyEnvironment NewEnvironment() =>
@@ -21,10 +21,10 @@ namespace Monkey.Core
             return env;
         }
 
-        // TODO: Why return a tuple and not simply null if not found?
-        public (IMonkeyObject, bool) Get(string name)
+        // TODO: Why return a tuple and not simply null if not found? Can IMonkeyObject ever be null?
+        public (IMonkeyObject?, bool) Get(string name)
         {
-            var ok = Store.TryGetValue(name, out IMonkeyObject value);
+            var ok = Store.TryGetValue(name, out IMonkeyObject? value);
 
             // If current environment doesn't have a value associated with a
             // name, we recursively call Get on enclosing environment (which the
