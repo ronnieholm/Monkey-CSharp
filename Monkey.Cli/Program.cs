@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using static System.Console;
 using Monkey.Core;
+using static System.Console;
 
 namespace Monkey.Cli
 {
-    class Program
+    internal static class Program
     {
-        const string MonkeyFace= @"                 __,__
+        private const string MonkeyFace= @"                 __,__
         .--.  .-""     ""-.  .--.
        / .. \/   .-. .-. \/ .. \
        | |  '|  /   Y   \ |'  | |
@@ -21,10 +21,11 @@ namespace Monkey.Cli
                  '-----'
         ";
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             const string prompt = ">> ";
-
+            WriteLine(MonkeyFace);
+            
             if (args.Length == 0)
             {
                 WriteLine($"Hello {Environment.UserName}! This is the Monkey programming language!");
@@ -37,7 +38,7 @@ namespace Monkey.Cli
             var env = new MonkeyEnvironment();
             while (true)
             {
-                var line = "";
+                string? line;
                 if (args.Length == 0)
                 {
                     Write(prompt);
@@ -71,10 +72,9 @@ namespace Monkey.Cli
             }
         }
 
-        static void PrintParserErrors(List<string> errors)
+        private static void PrintParserErrors(List<string> errors)
         {
-            WriteLine(MonkeyFace);
-            WriteLine("Woops! We ran into some monkey business here!");
+            WriteLine("Whoops! We ran into some monkey business here!");
             WriteLine(" Parser errors");
             foreach (var msg in errors)
                 WriteLine($"\t{msg}\n");

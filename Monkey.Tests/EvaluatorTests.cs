@@ -296,15 +296,16 @@ namespace Monkey.Tests
         [Fact]
         public void TestHashLiterals()
         {
-            var source = @"let two = ""two"";
-	                       {
-                               ""one"": 10 - 9,
-                               two: 1 + 1,
-                               ""thr"" + ""ee"": 6 / 2,
-                               4: 4,
-                               true: 5,
-                               false: 6
-        	               }";
+            const string? source = @"
+                let two = ""two"";
+	            {
+                    ""one"": 10 - 9,
+                    two: 1 + 1,
+                    ""thr"" + ""ee"": 6 / 2,
+                    4: 4,
+                    true: 5,
+                    false: 6
+        	    }";
 
             var evaluated = TestEval(source);
             Assert.IsType<MonkeyHash>(evaluated);
@@ -321,10 +322,10 @@ namespace Monkey.Tests
             };
 
             Assert.Equal(expected.Count, result.Pairs.Count);
-            foreach (var kv in result.Pairs)
+            foreach (var (key, hashPair) in result.Pairs)
             {
-                var pair = result.Pairs[kv.Key];
-                var value = ((MonkeyInteger)kv.Value.Value).Value;
+                var pair = result.Pairs[key];
+                var value = ((MonkeyInteger)hashPair.Value).Value;
                 TestIntegerObject(pair.Value, value);
             }
         }
@@ -346,9 +347,9 @@ namespace Monkey.Tests
                 TestNullObject(evaluated);
         }
 
-        private void TestNullObject(IMonkeyObject obj) => Assert.Equal(Evaluator.Null, obj);
+        private static void TestNullObject(IMonkeyObject obj) => Assert.Equal(Evaluator.Null, obj);
 
-        private IMonkeyObject TestEval(string source)
+        private static IMonkeyObject TestEval(string source)
         {
             var lexer = new Lexer(source);
             var parser = new Parser(lexer, false);
@@ -357,14 +358,14 @@ namespace Monkey.Tests
             return Evaluator.Eval(program, env);
         }
 
-        private void TestIntegerObject(IMonkeyObject obj, long expected)
+        private static void TestIntegerObject(IMonkeyObject obj, long expected)
         {
             Assert.IsType<MonkeyInteger>(obj);
             var result = (MonkeyInteger)obj;
             Assert.Equal(expected, result.Value);
         }
 
-        private void TestBooleanObject(IMonkeyObject obj, bool expected)
+        private static void TestBooleanObject(IMonkeyObject obj, bool expected)
         {
             Assert.IsType<MonkeyBoolean>(obj);
             var result = (MonkeyBoolean)obj;

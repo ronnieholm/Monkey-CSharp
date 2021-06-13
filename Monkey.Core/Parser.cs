@@ -23,7 +23,7 @@ namespace Monkey.Core
 
         private static void IncIdent() => _traceLevel++;
         private static void DecIdent() => _traceLevel--;
-        private static string IdentLevel() => new string(TraceIdentPlaceholder, _traceLevel);
+        private static string IdentLevel() => new(TraceIdentPlaceholder, _traceLevel);
 
         private void TracePrint(string message)
         {
@@ -47,10 +47,10 @@ namespace Monkey.Core
 
     public class Parser
     {
-        readonly Lexer _lexer;
+        private readonly Lexer _lexer;
 
         // For visualizing and debugging the Pratt expression parser.
-        readonly ParserTracer _tracer;
+        private readonly ParserTracer _tracer;
 
         // Acts like _position and PeekChar within the lexer, but instead of
         // pointing to characters in the source they point to current and next
@@ -61,14 +61,14 @@ namespace Monkey.Core
         // decide if we're at the end of the line or at the start of an
         // arithmetic expression. This implements a parser with one token
         // lookahead.
-        Token _curToken;
-        Token _peekToken;
+        private Token _curToken = null!;
+        private Token _peekToken = null!;
 
         public List<string> Errors { get; }
 
         // Functions based on token type called as part of Pratt parsing.
-        readonly Dictionary<TokenType, PrefixParseFn> _prefixParseFns;
-        readonly Dictionary<TokenType, InfixParseFn> _infixParseFns;
+        private readonly Dictionary<TokenType, PrefixParseFn> _prefixParseFns;
+        private readonly Dictionary<TokenType, InfixParseFn> _infixParseFns;
 
         // It's the relative and not absolute values of levels that matter.
         // During parsing we want to answer questions such as whether product
@@ -77,7 +77,7 @@ namespace Monkey.Core
         // value to each member, it makes debugging the Pratt parser slightly
         // more difficult. During precedence value comparisons, the debugger
         // shows strings instead of their values.
-        enum PrecedenceLevel
+        private enum PrecedenceLevel
         {
             None = 0,
             Lowest,
@@ -97,7 +97,7 @@ namespace Monkey.Core
         // associated with any token but an expression as a whole. On the other
         // hand some operators such as multiplication and division share
         // precedence level.
-        readonly Dictionary<TokenType, PrecedenceLevel> _precedences = new Dictionary<TokenType, PrecedenceLevel>
+        private readonly Dictionary<TokenType, PrecedenceLevel> _precedences = new()
         {
             { TokenType.Eq, PrecedenceLevel.Equals },
             { TokenType.NotEq, PrecedenceLevel.Equals },
@@ -145,7 +145,7 @@ namespace Monkey.Core
             RegisterInfix(TokenType.Gt, ParseInfixExpression);
             RegisterInfix(TokenType.LParen, ParseCallExpression);
             RegisterInfix(TokenType.LBracket, ParseIndexExpression);
-
+            
             // Read two tokens so _curToken and _peekToken tokens are both set.
             NextToken();
             NextToken();
@@ -253,7 +253,7 @@ namespace Monkey.Core
         private Expression? ParseExpression(PrecedenceLevel precedence)
         {
             _tracer.Trace(nameof(ParseExpression));
-            var ok = _prefixParseFns.TryGetValue(_curToken.Type, out PrefixParseFn? prefix);
+            var ok = _prefixParseFns.TryGetValue(_curToken.Type, out var prefix);
             if (!ok)
             {
                 NoPrefixParseFnError(_curToken.Type);
@@ -303,13 +303,13 @@ namespace Monkey.Core
             Errors.Add($"Expected next token to be {t}, got {_peekToken.Type} instead.");
 
         private Identifier ParseIdentifier() =>
-            new Identifier(_curToken, _curToken.Literal);
+            new(_curToken, _curToken.Literal);
 
         private IntegerLiteral? ParseIntegerLiteral()
         {
             _tracer.Trace(nameof(ParseIntegerLiteral));
             var token = _curToken;
-            var ok = long.TryParse(_curToken.Literal, out long value);
+            var ok = long.TryParse(_curToken.Literal, out var value);
             if (!ok)
             {
                 Errors.Add($"Could not parse '{_curToken.Literal}' as integer");
@@ -544,7 +544,7 @@ namespace Monkey.Core
 
         private PrecedenceLevel PeekPrecedence()
         {
-            var ok = _precedences.TryGetValue(_peekToken.Type, out PrecedenceLevel pv);
+            var ok = _precedences.TryGetValue(_peekToken.Type, out var pv);
 
             // Returning Lowest when precedence level could not be determined
             // enables us to parse grouped expression. The RParen token doesn't
@@ -556,7 +556,7 @@ namespace Monkey.Core
 
         private PrecedenceLevel CurPrecedence()
         {
-            var ok = _precedences.TryGetValue(_curToken.Type, out PrecedenceLevel pv);
+            var ok = _precedences.TryGetValue(_curToken.Type, out var pv);
             return ok ? pv : PrecedenceLevel.Lowest;
         }
     }

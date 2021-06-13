@@ -45,34 +45,22 @@ namespace Monkey.Core
         Return
     }
 
-    public struct Token
-    {
-        public TokenType Type { get; }
-        public string Literal { get; }
-
-        public Token(TokenType type, string literal)
-        {
-            Type = type;
-            Literal = literal;
-        }
-
-        public override string ToString() => $"({Type},{Literal})";
-    }
-
+    public record Token(TokenType Type, string Literal);
+    
     public class Lexer
     {
-        readonly string _source;
+        private readonly string _source;
 
         // Position in source where last character was read.
-        int _position;
+        private int _position;
 
         // Position in source where next character is read.
-        int _readPosition;
+        private int _readPosition;
 
         // Character under examination.
-        char _ch;
+        private char _ch;
 
-        readonly Dictionary<string, TokenType> _keywords = new Dictionary<string, TokenType>
+        private readonly Dictionary<string, TokenType> _keywords = new()
         {
             { "fn", TokenType.Function },
             { "let", TokenType.Let },
@@ -177,9 +165,8 @@ namespace Monkey.Core
                     }
                     if (IsDigit(_ch))
                     {
-                        var type = TokenType.Int;
                         var literal = ReadNumber();
-                        return new Token(type, literal);
+                        return new Token(TokenType.Int, literal);
                     }
 
                     tok = new Token(TokenType.Illegal, _ch.ToString());
@@ -230,16 +217,16 @@ namespace Monkey.Core
             return _source.Substring(p, _position - p);
         }
 
-        private bool IsLetter(char ch) =>
+        private static bool IsLetter(char ch) =>
             'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_';
 
         private void SkipWhitespace()
         {
-            while (_ch == ' ' || _ch == '\t' || _ch == '\n' || _ch == '\r')
+            while (_ch is ' ' or '\t' or '\n' or '\r')
                 ReadChar();
         }
 
-        private bool IsDigit(char ch) =>
+        private static bool IsDigit(char ch) =>
             '0' <= ch && ch <= '9';
 
         private string ReadString()

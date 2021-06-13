@@ -294,11 +294,11 @@ namespace Monkey.Tests
                 { "three", 3L },
             };
 
-            foreach (var kv in hash.Pairs)
+            foreach (var (expression, value) in hash.Pairs)
             {
-                var key = Assert.IsType<StringLiteral>(kv.Key);
+                var key = Assert.IsType<StringLiteral>(expression);
                 var expectedValue = expected[key.String];
-                TestIntegerLiteral(kv.Value, expectedValue);
+                TestIntegerLiteral(value, expectedValue);
             }
         }
 
@@ -328,11 +328,11 @@ namespace Monkey.Tests
                 { "three", e => TestInfixExpression(e, 15L, "/", 3L) },
             };
 
-            foreach (var kv in hash.Pairs)
+            foreach (var (key, value) in hash.Pairs)
             {
-                var literal = Assert.IsType<StringLiteral>(kv.Key);
-                var testFunc = tests[kv.Key.String];
-                testFunc(kv.Value);
+                Assert.IsType<StringLiteral>(key);
+                var testFunc = tests[key.String];
+                testFunc(value);
             }
         }
 
@@ -350,7 +350,7 @@ namespace Monkey.Tests
             Assert.Equal(value, ident.TokenLiteral);
         }
 
-        private void TestLiteralExpression(Expression expr, Object expected)
+        private void TestLiteralExpression(Expression expr, object expected)
         {
             if (expected is long i)
                 TestIntegerLiteral(expr, i);
@@ -362,7 +362,7 @@ namespace Monkey.Tests
                 throw new Exception($"Unsupported type: {expected.GetType()}");
         }
 
-        private void TestInfixExpression(Expression expr, Object left, string op, Object right)
+        private void TestInfixExpression(Expression expr, object left, string op, object right)
         {
             var opExpr = Assert.IsType<InfixExpression>(expr);
             TestLiteralExpression(opExpr.Left, left);
@@ -370,14 +370,14 @@ namespace Monkey.Tests
             TestLiteralExpression(opExpr.Right, right);
         }
 
-        private void TestBooleanLiteral(Expression expr, bool value)
+        private static void TestBooleanLiteral(Expression expr, bool value)
         {
             var bo = Assert.IsType<Boolean_>(expr);
             Assert.Equal(value, bo.Value);
             Assert.Equal(value.ToString().ToLower(), bo.TokenLiteral);
         }
 
-        private void TestLetStatement(Statement s, string name)
+        private static void TestLetStatement(Statement s, string name)
         {
             Assert.Equal("let", s.TokenLiteral);
             var l = Assert.IsType<LetStatement>(s);
@@ -385,7 +385,7 @@ namespace Monkey.Tests
             Assert.Equal(name, l.Name.TokenLiteral);
         }
 
-        private void CheckParserErrors(Parser p)
+        private static void CheckParserErrors(Parser p)
         {
             if (p.Errors.Count == 0)
                 return;
