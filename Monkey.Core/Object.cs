@@ -51,16 +51,14 @@ namespace Monkey.Core
     // Because both the Type and Value within the struct are both value types,
     // they're easily comparable and in combination are used as key for a
     // Dictionary<,>.
-    public struct HashKey
-    {
+    public record HashKey(
         // Scopes the hash to a particular object type.
-        public ObjectType Type { get; set; }
+        ObjectType Type,
 
         // Because key is an integer, we can compare keys using the == operator
         // without the need to overload Object.GetHashCode() and
         // Object.Equals().
-        public ulong Value { get; set; }
-    }
+        ulong Value);
 
     public class MonkeyInteger : IMonkeyObject, IHashable
     {
@@ -73,8 +71,7 @@ namespace Monkey.Core
             Value = value;
         }
 
-        public HashKey HashKey() =>
-            new HashKey { Type = Type, Value = (ulong)Value };
+        public HashKey HashKey() => new(Type, (ulong)Value);
     }
 
     public class MonkeyBoolean : IMonkeyObject, IHashable
@@ -86,7 +83,7 @@ namespace Monkey.Core
         public HashKey HashKey()
         {
             var value = Value ? 1 : 0;
-            return new HashKey { Type = Type, Value = (ulong)value };
+            return new HashKey(Type, (ulong)value);
         }
     }
 
@@ -169,7 +166,7 @@ namespace Monkey.Core
             var s1 = Value.Substring(0, Value.Length / 2);
             var s2 = Value.Substring(Value.Length / 2);
             var hash = ((long)s1.GetHashCode()) << 32 | (long)s2.GetHashCode();
-            return new HashKey { Type = Type, Value = (ulong)hash };
+            return new HashKey(Type, (ulong)hash);
         }
     }
 

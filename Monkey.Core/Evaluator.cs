@@ -17,9 +17,9 @@ namespace Monkey.Core
         // As there's only ever a need for a single instance of each of these
         // values, we optimize by pre-creating instances to return during
         // evaluation.
-        public static readonly MonkeyBoolean True = new MonkeyBoolean { Value = true };
-        public static readonly MonkeyBoolean False = new MonkeyBoolean { Value = false };
-        public static readonly MonkeyNull Null = new MonkeyNull();
+        public static readonly MonkeyBoolean True = new() { Value = true };
+        public static readonly MonkeyBoolean False = new() { Value = false };
+        public static readonly MonkeyNull Null = new();
 
         public static IMonkeyObject Eval(INode node, MonkeyEnvironment env)
         {
@@ -39,16 +39,12 @@ namespace Monkey.Core
                     // Check for errors whenever Eval is called inside Eval in
                     // order to stop errors from being passed around and
                     // bubbling up far from their origin.
-                    if (IsError(val))
-                        return val;
-                    return new MonkeyReturnValue(val);
+                    return IsError(val) ? val : new MonkeyReturnValue(val);
                 }
                 case LetStatement ls:
                 {
                     var val = Eval(ls.Value, env);
-                    if (IsError(val))
-                        return val;
-                    return env.Set(ls.Name.Value, val);
+                    return IsError(val) ? val : env.Set(ls.Name.Value, val);
                 }
 
                 // Expressions
@@ -59,9 +55,7 @@ namespace Monkey.Core
                 case PrefixExpression pe:
                 {
                     var right = Eval(pe.Right, env);
-                    if (IsError(right))
-                        return right;
-                    return EvalPrefixExpression(pe.Operator, right);
+                    return IsError(right) ? right : EvalPrefixExpression(pe.Operator, right);
                 }
                 case InfixExpression ie:
                 {
@@ -76,9 +70,7 @@ namespace Monkey.Core
                 case Identifier i:
                     return EvalIdentifier(i, env);
                 case FunctionLiteral fl:
-                {
                     return new MonkeyFunction(fl.Parameters, fl.Body, env);
-                }
                 case CallExpression ce:
                 {
                     var function = Eval(ce.Function, env);
@@ -104,9 +96,7 @@ namespace Monkey.Core
                         return left;
 
                     var index = Eval(ide.Index, env);
-                    if (IsError(index))
-                        return index;
-                    return EvalIndexExpression(left, index);
+                    return IsError(index) ? index : EvalIndexExpression(left, index);
                 }
                 case StringLiteral sl:
                     return new MonkeyString(sl.Value);
@@ -119,7 +109,7 @@ namespace Monkey.Core
 
         private static IMonkeyObject EvalProgram(List<Statement> statements, MonkeyEnvironment env)
         {
-            IMonkeyObject result = Evaluator.Null;
+            IMonkeyObject result = Null;
             foreach (var stmt in statements)
             {
                 result = Eval(stmt, env);
@@ -139,7 +129,7 @@ namespace Monkey.Core
 
         private static IMonkeyObject EvalBlockStatement(List<Statement> statements, MonkeyEnvironment env)
         {
-            IMonkeyObject result = Evaluator.Null;
+            IMonkeyObject result = Null;
             foreach (var stmt in statements)
             {
                 result = Eval(stmt, env);
@@ -328,11 +318,12 @@ namespace Monkey.Core
 
         private static IMonkeyObject EvalIndexExpression(IMonkeyObject left, IMonkeyObject index)
         {
-            if (left.Type == ObjectType.Array && index.Type == ObjectType.Integer)
-                return EvalArrayIndexExpression(left, index);
-            if (left.Type == ObjectType.Hash)
-                return EvalHashIndexExpression(left, index);
-            return new MonkeyError($"Index operator not supported {left.Type}");
+            return left.Type switch
+            {
+                ObjectType.Array when index.Type == ObjectType.Integer => EvalArrayIndexExpression(left, index),
+                ObjectType.Hash => EvalHashIndexExpression(left, index),
+                _ => new MonkeyError($"Index operator not supported {left.Type}")
+            };
         }
 
         private static IMonkeyObject EvalArrayIndexExpression(IMonkeyObject array, IMonkeyObject index)

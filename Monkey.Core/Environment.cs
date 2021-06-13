@@ -5,14 +5,14 @@ namespace Monkey.Core
     // We call it MonkeyEnvironment to avoid confusion with System.Environment.
     public class MonkeyEnvironment
     {
-        private Dictionary<string, IMonkeyObject> Store { get; set; }
+        private Dictionary<string, IMonkeyObject> Store { get; init; }
         private MonkeyEnvironment? Outer { get; set; }
 
         public MonkeyEnvironment() =>
             Store = new Dictionary<string, IMonkeyObject>();
 
         private static MonkeyEnvironment NewEnvironment() =>
-            new MonkeyEnvironment { Store = new Dictionary<string, IMonkeyObject>(), Outer = null };
+            new() { Store = new Dictionary<string, IMonkeyObject>(), Outer = null };
 
         public static MonkeyEnvironment NewEnclosedEnvironment(MonkeyEnvironment outer)
         {
@@ -24,7 +24,7 @@ namespace Monkey.Core
         // TODO: Why return a tuple and not simply null if not found? Can IMonkeyObject ever be null?
         public (IMonkeyObject?, bool) Get(string name)
         {
-            var ok = Store.TryGetValue(name, out IMonkeyObject? value);
+            var ok = Store.TryGetValue(name, out var value);
 
             // If current environment doesn't have a value associated with a
             // name, we recursively call Get on enclosing environment (which the

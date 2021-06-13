@@ -5,11 +5,6 @@ namespace Monkey.Core
 {
     public interface INode
     {
-        // For debugging and testing.
-        string TokenLiteral { get; }
-
-        // We don't override Object.ToString() to make String calls explicit.
-        string String { get; }
     }
 
     public class Statement : INode
