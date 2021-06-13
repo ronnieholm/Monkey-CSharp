@@ -45,7 +45,12 @@ namespace Monkey.Core
         Return
     }
 
-    public record Token(TokenType Type, string Literal);
+    public record Token(TokenType Type, string Literal)
+    {
+        public Token(TokenType type, char literal) : this(type, literal.ToString())
+        {
+        }
+    }
     
     public class Lexer
     {
@@ -92,13 +97,13 @@ namespace Monkey.Core
                         tok = new Token(TokenType.Eq, $"{c}{_ch}");
                     }
                     else
-                        tok = new Token(TokenType.Assign, _ch.ToString());
+                        tok = new Token(TokenType.Assign, _ch);
                     break;
                 case '+':
-                    tok = new Token(TokenType.Plus, _ch.ToString());
+                    tok = new Token(TokenType.Plus, _ch);
                     break;
                 case '-':
-                    tok = new Token(TokenType.Minus, _ch.ToString());
+                    tok = new Token(TokenType.Minus, _ch);
                     break;
                 case '!':
                     if (PeekChar() == '=')
@@ -108,49 +113,49 @@ namespace Monkey.Core
                         tok = new Token(TokenType.NotEq, $"{c}{_ch}");
                     }
                     else
-                        tok = new Token(TokenType.Bang, _ch.ToString());
+                        tok = new Token(TokenType.Bang, _ch);
                     break;
                 case '/':
-                    tok = new Token(TokenType.Slash, _ch.ToString());
+                    tok = new Token(TokenType.Slash, _ch);
                     break;
                 case '*':
-                    tok = new Token(TokenType.Asterisk, _ch.ToString());
+                    tok = new Token(TokenType.Asterisk, _ch);
                     break;
                 case '<':
-                    tok = new Token(TokenType.Lt, _ch.ToString());
+                    tok = new Token(TokenType.Lt, _ch);
                     break;
                 case '>':
-                    tok = new Token(TokenType.Gt, _ch.ToString());
+                    tok = new Token(TokenType.Gt, _ch);
                     break;
                 case ';':
-                    tok = new Token(TokenType.Semicolon, _ch.ToString());
+                    tok = new Token(TokenType.Semicolon, _ch);
                     break;
                 case ',':
-                    tok = new Token(TokenType.Comma, _ch.ToString());
+                    tok = new Token(TokenType.Comma, _ch);
                     break;
                 case '(':
-                    tok = new Token(TokenType.LParen, _ch.ToString());
+                    tok = new Token(TokenType.LParen, _ch);
                     break;
                 case ')':
-                    tok = new Token(TokenType.RParen, _ch.ToString());
+                    tok = new Token(TokenType.RParen, _ch);
                     break;
                 case '{':
-                    tok = new Token(TokenType.LBrace, _ch.ToString());
+                    tok = new Token(TokenType.LBrace, _ch);
                     break;
                 case '}':
-                    tok = new Token(TokenType.RBrace, _ch.ToString());
+                    tok = new Token(TokenType.RBrace, _ch);
                     break;
                 case '"':
                     tok = new Token(TokenType.String, ReadString());
                     break;
                 case '[':
-                    tok = new Token(TokenType.LBracket, _ch.ToString());
+                    tok = new Token(TokenType.LBracket, _ch);
                     break;
                 case ']':
-                    tok = new Token(TokenType.RBracket, _ch.ToString());
+                    tok = new Token(TokenType.RBracket, _ch);
                     break;
                 case ':':
-                    tok = new Token(TokenType.Colon, _ch.ToString());
+                    tok = new Token(TokenType.Colon, _ch);
                     break;
                 case '\0':
                     tok = new Token(TokenType.Eof, "");
@@ -169,7 +174,7 @@ namespace Monkey.Core
                         return new Token(TokenType.Int, literal);
                     }
 
-                    tok = new Token(TokenType.Illegal, _ch.ToString());
+                    tok = new Token(TokenType.Illegal, _ch);
                     ReadChar();
                     return tok;
             }

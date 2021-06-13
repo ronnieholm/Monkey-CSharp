@@ -29,10 +29,10 @@ namespace Monkey.Tests
         [Fact]
         public void TestBooleanHashKey()
         {
-            var true1 = new MonkeyBoolean { Value = true };
-            var true2 = new MonkeyBoolean { Value = true };
-            var false1 = new MonkeyBoolean { Value = false };
-            var false2 = new MonkeyBoolean { Value = false  };
+            var true1 = new MonkeyBoolean(true);
+            var true2 = new MonkeyBoolean(true);
+            var false1 = new MonkeyBoolean(false);
+            var false2 = new MonkeyBoolean(false);
 
             Assert.Equal(true1.HashKey(), true2.HashKey());
             Assert.Equal(false1.HashKey(), false2.HashKey());

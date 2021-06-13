@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using Monkey.Core;
+using Boolean = Monkey.Core.Boolean;
 
 namespace Monkey.Tests
 {
     public class ParserTests
     {
-        private Program SetupProgram(string source)
+        private static Program SetupProgram(string source)
         {
             var lexer = new Lexer(source);
             var parser = new Parser(lexer, false);
@@ -147,7 +149,7 @@ namespace Monkey.Tests
             var p = SetupProgram(source);
             Assert.Single(p.Statements);
             var stmt = Assert.IsType<ExpressionStatement>(p.Statements[0]);
-            var boolean = Assert.IsType<Boolean_>(stmt.Expression);
+            var boolean = Assert.IsType<Boolean>(stmt.Expression);
             Assert.Equal(expected, boolean.Value);
         }
 
@@ -350,8 +352,9 @@ namespace Monkey.Tests
             Assert.Equal(value, ident.TokenLiteral);
         }
 
-        private void TestLiteralExpression(Expression expr, object expected)
+        private void TestLiteralExpression<T>(Expression expr, T expected)
         {
+            if (expected == null) throw new ArgumentNullException(nameof(expected));
             if (expected is long i)
                 TestIntegerLiteral(expr, i);
             else if (expected is string s)
@@ -362,7 +365,7 @@ namespace Monkey.Tests
                 throw new Exception($"Unsupported type: {expected.GetType()}");
         }
 
-        private void TestInfixExpression(Expression expr, object left, string op, object right)
+        private void TestInfixExpression<TLeft, TRight>(Expression expr, TLeft left, string op, TRight right)
         {
             var opExpr = Assert.IsType<InfixExpression>(expr);
             TestLiteralExpression(opExpr.Left, left);
@@ -372,7 +375,7 @@ namespace Monkey.Tests
 
         private static void TestBooleanLiteral(Expression expr, bool value)
         {
-            var bo = Assert.IsType<Boolean_>(expr);
+            var bo = Assert.IsType<Boolean>(expr);
             Assert.Equal(value, bo.Value);
             Assert.Equal(value.ToString().ToLower(), bo.TokenLiteral);
         }
@@ -389,9 +392,7 @@ namespace Monkey.Tests
         {
             if (p.Errors.Count == 0)
                 return;
-            var s = "";
-            foreach (var e in p.Errors)
-                s += $"{e}\n";
+            var s = p.Errors.Aggregate("", (current, e) => $"{current}{e}\n");
             throw new Exception($"Parser encountered {p.Errors.Count} errors\n{s}");
         }
     }

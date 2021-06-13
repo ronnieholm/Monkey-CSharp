@@ -49,7 +49,7 @@ namespace Monkey.Cli
 
                 if (line == null)
                 {
-                    WriteLine("Invalid null input");
+                    WriteLine("Invalid input");
                     continue;
                 }
 
@@ -64,8 +64,7 @@ namespace Monkey.Cli
                 }
 
                 var evaluated = Evaluator.Eval(program, env);
-                if (evaluated != null)
-                    WriteLine(evaluated.Inspect());
+                WriteLine(evaluated.Inspect());
 
                 if (args.Length == 1)
                     break;

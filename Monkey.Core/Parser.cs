@@ -79,7 +79,6 @@ namespace Monkey.Core
         // shows strings instead of their values.
         private enum PrecedenceLevel
         {
-            None = 0,
             Lowest,
             Equals,         // ==
             LessGreater,    // > or <
@@ -259,7 +258,7 @@ namespace Monkey.Core
                 NoPrefixParseFnError(_curToken.Type);
                 return null;
             }
-            var leftExpr = prefix();
+            var leftExpr = prefix!();
             if (leftExpr == null)
                 return null;
 
@@ -271,11 +270,11 @@ namespace Monkey.Core
             // is evaluated.
             while (!PeekTokenIs(TokenType.Semicolon) && precedence < PeekPrecedence())
             {
-                ok = _infixParseFns.TryGetValue(_peekToken.Type, out InfixParseFn? infix);
+                ok = _infixParseFns.TryGetValue(_peekToken.Type, out var infix);
                 if (!ok)
                     return leftExpr;
                 NextToken();
-                leftExpr = infix(leftExpr);
+                leftExpr = infix!(leftExpr);
                 if (leftExpr == null)
                     return null;
             }
@@ -319,8 +318,8 @@ namespace Monkey.Core
             return new IntegerLiteral(token, value);
         }
 
-        private Boolean_ ParseBoolean() =>
-            new Boolean_(_curToken, CurTokenIs(TokenType.True));
+        private Boolean ParseBoolean() =>
+            new Boolean(_curToken, CurTokenIs(TokenType.True));
 
         private Expression? ParsePrefixExpression()
         {
@@ -373,9 +372,9 @@ namespace Monkey.Core
             // exception it itself throws a NullReferenceException because node
             // in "throw new Exception($"Invalid node type: {node.GetType()}");"
             // is null. Python implementation doesn't have this issue.
-            if (!ExpectPeek(TokenType.RBracket))
-                return null;
-            return new IndexExpression(token, left, index);
+            return ExpectPeek(TokenType.RBracket) 
+                ? new IndexExpression(token, left, index)
+                : null;
         }
 
         private Expression? ParseGroupedExpression()
@@ -473,7 +472,7 @@ namespace Monkey.Core
         }
 
         private StringLiteral ParseStringLiteral() =>
-            new StringLiteral(_curToken, _curToken.Literal);
+            new(_curToken, _curToken.Literal);
 
         private ArrayLiteral? ParseArrayLiteral()
         {
@@ -508,9 +507,7 @@ namespace Monkey.Core
                 list.Add(expr1);
             }
 
-            if (!ExpectPeek(end))
-                return null;
-            return list;
+            return ExpectPeek(end) ? list : null;
         }
 
         private HashLiteral? ParseHashLiteral()
@@ -537,9 +534,7 @@ namespace Monkey.Core
                     return null;
             }
 
-            if (!ExpectPeek(TokenType.RBrace))
-                return null;
-            return new HashLiteral(token, pairs);
+            return ExpectPeek(TokenType.RBrace) ? new HashLiteral(token, pairs) : null;
         }
 
         private PrecedenceLevel PeekPrecedence()

@@ -17,11 +17,11 @@ namespace Monkey.Core
         // As there's only ever a need for a single instance of each of these
         // values, we optimize by pre-creating instances to return during
         // evaluation.
-        public static readonly MonkeyBoolean True = new() { Value = true };
-        public static readonly MonkeyBoolean False = new() { Value = false };
+        public static readonly MonkeyBoolean True = new(true);
+        public static readonly MonkeyBoolean False = new(false);
         public static readonly MonkeyNull Null = new();
 
-        public static IMonkeyObject Eval(INode node, MonkeyEnvironment env)
+        public static IMonkeyObject Eval(Node node, MonkeyEnvironment env)
         {
             switch (node)
             {
@@ -50,7 +50,7 @@ namespace Monkey.Core
                 // Expressions
                 case IntegerLiteral il:
                     return new MonkeyInteger(il.Value);
-                case Boolean_ b:
+                case Boolean b:
                     return NativeBoolToBooleanObject(b.Value);
                 case PrefixExpression pe:
                 {
@@ -134,7 +134,7 @@ namespace Monkey.Core
             {
                 result = Eval(stmt, env);
                 var rt = result.Type;
-                if (rt == ObjectType.ReturnValue || rt == ObjectType.Error)
+                if (rt is ObjectType.ReturnValue or ObjectType.Error)
                 {
                     // Compared to EvalProgram(), we don't unwrap the return
                     // value. Instead when an ReturnValue is encountered as the
@@ -223,7 +223,7 @@ namespace Monkey.Core
 
             var leftVal = ((MonkeyString)left).Value;
             var rightVal = ((MonkeyString)right).Value;
-            return new MonkeyString(leftVal + rightVal);
+            return new MonkeyString($"{leftVal}{rightVal}");
         }
 
         private static IMonkeyObject EvalIfExpression(IfExpression ie, MonkeyEnvironment env)
@@ -257,11 +257,11 @@ namespace Monkey.Core
         {
             var (val, inCurrentEnvironment) = env.Get(node.Value);
             if (inCurrentEnvironment)
-                return val;
+                return val!;
 
-            var inBuiltinEnvironment = MonkeyBuiltins.Builtins.TryGetValue(node.Value, out MonkeyBuiltin fn);
+            var inBuiltinEnvironment = MonkeyBuiltins.Builtins.TryGetValue(node.Value, out var fn);
             if (inBuiltinEnvironment)
-                return fn;
+                return fn!;
             return new MonkeyError($"Identifier not found: {node.Value}");
         }
 
@@ -296,7 +296,7 @@ namespace Monkey.Core
             return new MonkeyError($"Not a function: {fn.Type}");
         }
 
-        private static MonkeyEnvironment ExtendFunctionEnv(MonkeyFunction fn, List<IMonkeyObject> args)
+        private static MonkeyEnvironment ExtendFunctionEnv(MonkeyFunction fn, IReadOnlyList<IMonkeyObject> args)
         {
             var env = MonkeyEnvironment.NewEnclosedEnvironment(fn.Env);
             for (var i = 0; i < fn.Parameters.Count; i++)
@@ -346,10 +346,10 @@ namespace Monkey.Core
             var hashObject = (MonkeyHash)hash;
             if (index is IHashable key)
             {
-                var found = hashObject.Pairs.TryGetValue(key.HashKey(), out HashPair pair);
+                var found = hashObject.Pairs.TryGetValue(key.HashKey(), out var pair);
                 if (!found)
                     return Null;
-                return pair.Value;
+                return pair!.Value;
             }
             return new MonkeyError($"Unusable as hash key: {index.Type}");
         }

@@ -60,89 +60,52 @@ namespace Monkey.Core
         // Object.Equals().
         ulong Value);
 
-    public class MonkeyInteger : IMonkeyObject, IHashable
+    public record MonkeyInteger(long Value) : IMonkeyObject, IHashable
     {
         public ObjectType Type => ObjectType.Integer;
-        public long Value { get; }
         public string Inspect() => Value.ToString();
-
-        public MonkeyInteger(long value)
-        {
-            Value = value;
-        }
-
         public HashKey HashKey() => new(Type, (ulong)Value);
     }
 
-    public class MonkeyBoolean : IMonkeyObject, IHashable
+    public record MonkeyBoolean(bool Value) : IMonkeyObject, IHashable
     {
         public ObjectType Type => ObjectType.Boolean;
-        public bool Value { get; set; }
         public string Inspect() => Value.ToString();
-
-        public HashKey HashKey()
-        {
-            var value = Value ? 1 : 0;
-            return new HashKey(Type, (ulong)value);
-        }
+        public HashKey HashKey() => new(Type, (ulong) (Value ? 1 : 0));
     }
-
+    
     // MonkeyNull is a type like MonkeyInteger and MonkeyBoolean except it
     // doesn't wrap a value. It represents the absence of a value.
-    public class MonkeyNull : IMonkeyObject
+    public record MonkeyNull : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Null;
         public string Inspect() => "null";
     }
 
     // MonkeyReturnValue is a wrapper around another Monkey object.
-    public class MonkeyReturnValue : IMonkeyObject
+    public record MonkeyReturnValue(IMonkeyObject Value) : IMonkeyObject
     {
         public ObjectType Type => ObjectType.ReturnValue;
-        public IMonkeyObject Value { get; }
-
-        public MonkeyReturnValue(IMonkeyObject value)
-        {
-            Value = value;
-        }
-
-        public string Inspect() => Value == null ? "null" : Value.Inspect();
+        public string Inspect() => Value.Inspect();
     }
 
     // MonkeyError wraps a string error message. In a production language, we'd
     // want to attach stack trace and line and column numbers to such error
     // object.
-    public class MonkeyError : IMonkeyObject
+    public record MonkeyError(string Message) : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Error;
-        public string Message { get; }
-
-        public MonkeyError(string message)
-        {
-            Message = message;
-        }
-
         public string Inspect() => $"Error: {Message}";
     }
 
-    public class MonkeyFunction : IMonkeyObject
+    public record MonkeyFunction(List<Identifier> Parameters, BlockStatement Body, MonkeyEnvironment Env) : IMonkeyObject
     {
-        public ObjectType Type => ObjectType.Function;
-        public List<Identifier> Parameters { get; }
-        public BlockStatement Body { get; }
-
         // Functions carry their own environment. This allows for closures to
         // "close over" the environment they're defined in and allows the
         // function to later access values within the closure.
-        public MonkeyEnvironment Env { get; }
 
-        public MonkeyFunction(List<Identifier> parameters, BlockStatement body, MonkeyEnvironment env)
-        {
-            Parameters = parameters;
-            Body = body;
-            Env = env;
-        }
-
+        public ObjectType Type => ObjectType.Function;
+        
         public string Inspect()
         {
             var parameters = Parameters.Select(p => p.String);
@@ -150,16 +113,10 @@ namespace Monkey.Core
         }
     }
 
-    public class MonkeyString : IMonkeyObject, IHashable
+    public record MonkeyString(string Value) : IMonkeyObject, IHashable
     {
-        public string Value { get; }
-        public string Inspect() => Value;
         public ObjectType Type => ObjectType.String;
-
-        public MonkeyString(string value)
-        {
-            Value = value;
-        }
+        public string Inspect() => Value;
 
         public HashKey HashKey()
         {
@@ -170,28 +127,15 @@ namespace Monkey.Core
         }
     }
 
-    public class MonkeyBuiltin : IMonkeyObject
+    public record MonkeyBuiltin(BuiltinFunction Fn) : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Builtin;
-        public BuiltinFunction Fn { get; }
-
-        public MonkeyBuiltin(BuiltinFunction fn)
-        {
-            Fn = fn;
-        }
-
         public string Inspect() => "builtin function";
     }
 
-    public class MonkeyArray : IMonkeyObject
+    public record MonkeyArray(List<IMonkeyObject> Elements) : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Array;
-        public List<IMonkeyObject> Elements { get; }
-
-        public MonkeyArray(List<IMonkeyObject> elements)
-        {
-            Elements = elements;
-        }
 
         public string Inspect()
         {
@@ -200,27 +144,11 @@ namespace Monkey.Core
         }
     }
 
-    public class HashPair
-    {
-        public IMonkeyObject Key { get; }
-        public IMonkeyObject Value { get; }
+    public record HashPair(IMonkeyObject Key, IMonkeyObject Value);
 
-        public HashPair(IMonkeyObject key, IMonkeyObject value)
-        {
-            Key = key;
-            Value = value;
-        }
-    }
-
-    public class MonkeyHash : IMonkeyObject
+    public record MonkeyHash(Dictionary<HashKey, HashPair> Pairs) : IMonkeyObject
     {
         public ObjectType Type => ObjectType.Hash;
-        public Dictionary<HashKey, HashPair> Pairs { get; }
-
-        public MonkeyHash(Dictionary<HashKey, HashPair> pairs)
-        {
-            Pairs = pairs;
-        }
 
         public string Inspect()
         {

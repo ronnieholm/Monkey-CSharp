@@ -82,7 +82,7 @@ namespace Monkey.Tests
                 }
                 return 1;
             }", 10L)]
-        public void TestIfElseExpressions(string source, object expected)
+        public void TestIfElseExpressions(string source, object? expected)
         {
             var evaluated = TestEval(source);
             if (expected == null)
@@ -236,10 +236,10 @@ namespace Monkey.Tests
         [InlineData("rest([])", null)]
         [InlineData("push([], 1)", new[] { 1L })]
         [InlineData("push(1, 1)", "Argument to 'push' must be Array. Got Integer")]
-        public void TestBuiltinFunctions(string source, object expected)
+        public void TestBuiltinFunctions(string source, object? expected)
         {
             var evaluated = TestEval(source);
-            if (expected is int i)
+            if (expected is int)
                 TestIntegerObject(evaluated, (long)expected);
             else if (expected is string s)
             {
