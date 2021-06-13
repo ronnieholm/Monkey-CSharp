@@ -159,11 +159,11 @@ namespace Monkey.Core
 
         private static IMonkeyObject EvalBangOperatorExpression(IMonkeyObject right)
         {
-            if (right == True)
+            if (ReferenceEquals(right, True))
                 return False;
-            if (right == False)
+            if (ReferenceEquals(right, False))
                 return True;
-            if (right == Null)
+            if (ReferenceEquals(right, Null))
                 return True;
             return False;
         }
@@ -240,11 +240,11 @@ namespace Monkey.Core
 
         private static bool IsTruthy(IMonkeyObject obj)
         {
-            if (obj == Null)
+            if (ReferenceEquals(obj, Null))
                 return false;
-            if (obj == True)
+            if (ReferenceEquals(obj, True))
                 return true;
-            if (obj == False)
+            if (ReferenceEquals(obj, False))
                 return false;
             return true;
         }
