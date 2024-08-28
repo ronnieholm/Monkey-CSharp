@@ -15,13 +15,12 @@ public class AstTests
         // layer of tests for our parser by comparing the parser output with
         // a string, a feature especially handy when parsing expressions.
         var program = new Program(
-            new List<Statement>
-            {
+            [
                 new LetStatement(
                     new Token(TokenType.Let, "let"),
                     new Identifier(new Token(TokenType.Ident, "myVar"), "myVar"),
                     new Identifier(new Token(TokenType.Ident, "anotherVar"), "anotherVar"))
-            });
+            ]);
         Assert.Equal("let myVar = anotherVar;", program.String);
     }
 }

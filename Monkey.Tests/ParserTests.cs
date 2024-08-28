@@ -345,7 +345,7 @@ public class ParserTests
         Assert.Equal(lit.TokenLiteral, value.ToString());
     }
 
-    private void TestIdentifier(Expression expr, string value)
+    private static void TestIdentifier(Expression expr, string value)
     {
         var ident = Assert.IsType<Identifier>(expr);
         Assert.Equal(value, ident.Value);

@@ -73,7 +73,7 @@ public record MonkeyBoolean(bool Value) : IMonkeyObject, IHashable
     public string Inspect() => Value.ToString();
     public HashKey HashKey() => new(Type, (ulong) (Value ? 1 : 0));
 }
-    
+
 // MonkeyNull is a type like MonkeyInteger and MonkeyBoolean except it
 // doesn't wrap a value. It represents the absence of a value.
 public record MonkeyNull : IMonkeyObject
@@ -105,7 +105,7 @@ public record MonkeyFunction(List<Identifier> Parameters, BlockStatement Body, M
     // function to later access values within the closure.
 
     public ObjectType Type => ObjectType.Function;
-        
+
     public string Inspect()
     {
         var parameters = Parameters.Select(p => p.String);
@@ -120,8 +120,8 @@ public record MonkeyString(string Value) : IMonkeyObject, IHashable
 
     public HashKey HashKey()
     {
-        var s1 = Value.Substring(0, Value.Length / 2);
-        var s2 = Value.Substring(Value.Length / 2);
+        var s1 = Value[..(Value.Length / 2)];
+        var s2 = Value[(Value.Length / 2)..];
         var hash = (long)s1.GetHashCode() << 32 | (uint)s2.GetHashCode();
         return new HashKey(Type, (ulong)hash);
     }

@@ -9,10 +9,10 @@ public class MonkeyEnvironment
     private MonkeyEnvironment? Outer { get; set; }
 
     public MonkeyEnvironment() =>
-        Store = new Dictionary<string, IMonkeyObject>();
+        Store = [];
 
     private static MonkeyEnvironment NewEnvironment() =>
-        new() { Store = new Dictionary<string, IMonkeyObject>(), Outer = null };
+        new() { Store = [], Outer = null };
 
     public static MonkeyEnvironment NewEnclosedEnvironment(MonkeyEnvironment outer)
     {

@@ -15,11 +15,11 @@ using InfixParseFn = Func<Expression, Expression?>;
 // or in VSCode run tests through the .NET Test Explorer plugin. Running
 // tests from within VSCode through the editor "run test" or "debug test",
 // stdout isn't redirected to the VSCode's Output tab.
-public class ParserTracer
+public class ParserTracer(bool withTracing)
 {
     private const char TraceIdentPlaceholder = '\t';
     private static int _traceLevel;
-    private readonly bool _withTracing;
+    private readonly bool _withTracing = withTracing;
 
     private static void IncIdent() => _traceLevel++;
     private static void DecIdent() => _traceLevel--;
@@ -31,13 +31,12 @@ public class ParserTracer
             Console.WriteLine($"{IdentLevel()}{message}");
     }
 
-    public ParserTracer(bool withTracing) => _withTracing = withTracing;
-
     public void Trace(string message)
     {
         TracePrint($"BEGIN {message}");
         IncIdent();
     }
+
     public void Untrace(string message)
     {
         DecIdent();
@@ -117,9 +116,9 @@ public class Parser
     {
         _lexer = lexer;
         _tracer = new ParserTracer(withTracing);
-        Errors = new List<string>();
+        Errors = [];
 
-        _prefixParseFns = new Dictionary<TokenType, PrefixParseFn>();
+        _prefixParseFns = [];
         RegisterPrefix(TokenType.Ident, ParseIdentifier);
         RegisterPrefix(TokenType.Int, ParseIntegerLiteral);
         RegisterPrefix(TokenType.Bang, ParsePrefixExpression);
@@ -133,7 +132,7 @@ public class Parser
         RegisterPrefix(TokenType.LBracket, ParseArrayLiteral);
         RegisterPrefix(TokenType.LBrace, ParseHashLiteral);
 
-        _infixParseFns = new Dictionary<TokenType, InfixParseFn>();
+        _infixParseFns = [];
         RegisterInfix(TokenType.Plus, ParseInfixExpression);
         RegisterInfix(TokenType.Minus, ParseInfixExpression);
         RegisterInfix(TokenType.Slash, ParseInfixExpression);
@@ -144,7 +143,7 @@ public class Parser
         RegisterInfix(TokenType.Gt, ParseInfixExpression);
         RegisterInfix(TokenType.LParen, ParseCallExpression);
         RegisterInfix(TokenType.LBracket, ParseIndexExpression);
-            
+
         // Read two tokens so _curToken and _peekToken tokens are both set.
         NextToken();
         NextToken();
@@ -319,7 +318,7 @@ public class Parser
     }
 
     private Boolean ParseBoolean() =>
-        new Boolean(_curToken, CurTokenIs(TokenType.True));
+        new(_curToken, CurTokenIs(TokenType.True));
 
     private Expression? ParsePrefixExpression()
     {
@@ -372,7 +371,7 @@ public class Parser
         // exception it itself throws a NullReferenceException because node
         // in "throw new Exception($"Invalid node type: {node.GetType()}");"
         // is null. Python implementation doesn't have this issue.
-        return ExpectPeek(TokenType.RBracket) 
+        return ExpectPeek(TokenType.RBracket)
             ? new IndexExpression(token, left, index)
             : null;
     }

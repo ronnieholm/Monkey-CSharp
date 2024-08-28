@@ -42,7 +42,7 @@ public static class MonkeyBuiltins
     {
         if (args.Count != 1)
             return new MonkeyError($"Wrong number of arguments. Got={args.Count}, want=1");
-        if (!(args[0] is MonkeyArray arr))
+        if (args[0] is not MonkeyArray arr)
             return new MonkeyError($"Argument to 'last' must be Array. Got {args[0].Type}");
         var length = arr.Elements.Count;
         return length > 0 ? arr.Elements[length - 1] : Evaluator.Null;
@@ -52,7 +52,7 @@ public static class MonkeyBuiltins
     {
         if (args.Count != 1)
             return new MonkeyError($"Wrong number of arguments. Got={args.Count}, want=1");
-        if (!(args[0] is MonkeyArray arr))
+        if (args[0] is not MonkeyArray arr)
             return new MonkeyError($"Argument to 'last' must be Array. Got {args[0].Type}");
         var length = arr.Elements.Count;
         if (length > 0)
@@ -64,7 +64,7 @@ public static class MonkeyBuiltins
     {
         if (args.Count != 2)
             return new MonkeyError($"Wrong number of arguments. Got={args.Count}, want=2");
-        if (!(args[0] is MonkeyArray arr))
+        if (args[0] is not MonkeyArray arr)
             return new MonkeyError($"Argument to 'push' must be Array. Got {args[0].Type}");
         var newElements = arr.Elements.Skip(0).ToList();
         newElements.Add(args[1]);
