@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-// An alternative, perhaps more object oriented, approach to evaluation would be
+// An alternative, perhaps more object-oriented, approach to evaluation would be
 // adding an "IMonkeyObject Eval(Evaluator e)" method to each AST node. The
 // Evaluator would make shared state available to each AST node through the
 // Evaluator argument. The Evaluator would kick of evaluation by looping through
-// each statement, dynamically dispatching to each AST's Eval() method, and so
+// each statement, dynamically dispatching to each AST Eval() method, and so
 // would would the Eval() method on each AST node. For an example of this
 // approach, see Browser hacking: Let's build a JavaScript engine for
 // SerenityOS! (https://www.youtube.com/watch?v=byNwCHc_IIM).
@@ -137,7 +137,7 @@ public static class Evaluator
             if (rt is ObjectType.ReturnValue or ObjectType.Error)
             {
                 // Compared to EvalProgram(), we don't unwrap the return
-                // value. Instead when an ReturnValue is encountered as the
+                // value. Instead, when an ReturnValue is encountered as the
                 // result of evaluating a statement, we return it to
                 // EvalProgram() for unwrapping. This halts outer block
                 // evaluation and bubbles up the result.
@@ -178,23 +178,27 @@ public static class Evaluator
 
     private static IMonkeyObject EvalInfixExpression(string op, IMonkeyObject left, IMonkeyObject right)
     {
-        if (left.Type == ObjectType.Integer && right.Type == ObjectType.Integer)
-            return EvalIntegerInfixExpression(op, left, right);
-        if (left.Type == ObjectType.String && right.Type == ObjectType.String)
-            return EvalStringInfixExpression(op, left, right);
-        // For MonkeyBooleans we can use reference comparison to check for
-        // equality. It works because of our singleton True and False
-        // instances but wouldn't work for MonkeyIntegers since they aren't
-        // singletons. 5 == 5 would be false when comparing references. To
-        // compare MonkeyIntegers we must unwrap the integer stored inside
-        // each MonkeyInteger object and compare their values.
-        if (op == "==")
-            return NativeBoolToBooleanObject(left == right);
-        if (op == "!=")
-            return NativeBoolToBooleanObject(left != right);
-        if (left.Type != right.Type)
-            return new MonkeyError($"Type mismatch: {left.Type} {op} {right.Type}");
-        return new MonkeyError($"Unknown operator: {left.Type} {op} {right.Type}");
+        return left.Type switch
+        {
+            ObjectType.Integer when right.Type == ObjectType.Integer =>
+                EvalIntegerInfixExpression(op, left, right),
+            ObjectType.String when right.Type == ObjectType.String =>
+                EvalStringInfixExpression(op, left, right),
+            _ => op switch
+            {
+                // For MonkeyBooleans we can use reference comparison to check for
+                // equality. It works because of our singleton True and False
+                // instances but wouldn't work for MonkeyIntegers since they aren't
+                // singletons. 5 == 5 would be false when comparing references. To
+                // compare MonkeyIntegers we must unwrap the integer stored inside
+                // each MonkeyInteger object and compare their values.
+                "==" => NativeBoolToBooleanObject(left == right),
+                "!=" => NativeBoolToBooleanObject(left != right),
+                _ => left.Type != right.Type
+                    ? new MonkeyError($"Type mismatch: {left.Type} {op} {right.Type}")
+                    : new MonkeyError($"Unknown operator: {left.Type} {op} {right.Type}")
+            }
+        };
     }
 
     private static IMonkeyObject EvalIntegerInfixExpression(string op, IMonkeyObject left, IMonkeyObject right)
@@ -233,9 +237,9 @@ public static class Evaluator
             return condition;
         if (IsTruthy(condition))
             return Eval(ie.Consequence, env);
-        if (ie.Alternative != null)
-            return Eval(ie.Alternative, env);
-        return Null;
+        return ie.Alternative != null
+            ? Eval(ie.Alternative, env)
+            : Null;
     }
 
     private static bool IsTruthy(IMonkeyObject obj)
@@ -244,9 +248,7 @@ public static class Evaluator
             return false;
         if (ReferenceEquals(obj, True))
             return true;
-        if (ReferenceEquals(obj, False))
-            return false;
-        return true;
+        return !ReferenceEquals(obj, False);
     }
 
     private static MonkeyBoolean NativeBoolToBooleanObject(bool value) => value ? True : False;
@@ -277,7 +279,7 @@ public static class Evaluator
         {
             var evaluated = Eval(e, env);
             if (IsError(evaluated))
-                return new List<IMonkeyObject> { evaluated };
+                return [evaluated];
             result.Add(evaluated);
         }
         return result;
@@ -285,15 +287,19 @@ public static class Evaluator
 
     private static IMonkeyObject ApplyFunction(IMonkeyObject fn, List<IMonkeyObject> args)
     {
-        if (fn is MonkeyFunction f)
+        switch (fn)
         {
-            var extendedEnv = ExtendFunctionEnv(f, args);
-            var evaluated = Eval(f.Body, extendedEnv);
-            return UnwrapReturnValue(evaluated);
+            case MonkeyFunction f:
+            {
+                var extendedEnv = ExtendFunctionEnv(f, args);
+                var evaluated = Eval(f.Body, extendedEnv);
+                return UnwrapReturnValue(evaluated);
+            }
+            case MonkeyBuiltin b:
+                return b.Fn(args);
+            default:
+                return new MonkeyError($"Not a function: {fn.Type}");
         }
-        if (fn is MonkeyBuiltin b)
-            return b.Fn(args);
-        return new MonkeyError($"Not a function: {fn.Type}");
     }
 
     private static MonkeyEnvironment ExtendFunctionEnv(MonkeyFunction fn, IReadOnlyList<IMonkeyObject> args)
@@ -347,9 +353,7 @@ public static class Evaluator
         if (index is IHashable key)
         {
             var found = hashObject.Pairs.TryGetValue(key.HashKey(), out var pair);
-            if (!found)
-                return Null;
-            return pair!.Value;
+            return !found ? Null : pair!.Value;
         }
         return new MonkeyError($"Unusable as hash key: {index.Type}");
     }

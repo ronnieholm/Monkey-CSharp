@@ -75,13 +75,14 @@ public class EvaluatorTests
     [InlineData("if (1 > 2) { 10 }", null)]
     [InlineData("if (1 > 2) { 10 } else { 20 }", 20L)]
     [InlineData("if (1 < 2) { 10 } else { 20 }", 10L)]
-    [InlineData(@"
-        if (10 > 1) {
-            if (10 > 1) {
-                return 10;
-            }
-            return 1;
-        }", 10L)]
+    [InlineData("""
+                if (10 > 1) {
+                    if (10 > 1) {
+                        return 10;
+                    }
+                    return 1;
+                }
+                """, 10L)]
     public void TestIfElseExpressions(string source, object? expected)
     {
         var evaluated = TestEval(source);
@@ -97,26 +98,29 @@ public class EvaluatorTests
     [InlineData("return 2 * 5; 9;", 10)]
     [InlineData("9; return 2 * 5; 9;", 10)]
     [InlineData("if (10 > 1) { return 10; }", 10)]
-    [InlineData(@"
-        if (10 > 1) {
-            if (10 > 1) {
-                return 10;
-            }
-            return 1;
-        }", 10)]
-    [InlineData(@"
-        let f = fn(x) {
-            return x;
-            x + 10;
-        };
-        f(10);", 10)]
-    [InlineData(@"
-        let f = fn(x) {
-            let result = x + 10;
-            return result;
-            return 10;
-        };
-        f(10);", 20)]
+    [InlineData("""
+                if (10 > 1) {
+                    if (10 > 1) {
+                        return 10;
+                    }
+                    return 1;
+                }
+                """, 10)]
+    [InlineData("""
+                let f = fn(x) {
+                    return x;
+                    x + 10;
+                };
+                f(10);
+                """, 10)]
+    [InlineData("""
+                let f = fn(x) {
+                    let result = x + 10;
+                    return result;
+                    return 10;
+                };
+                f(10);
+                """, 20)]
     public void TestReturnStatements(string source, long expected)
     {
         var evaluated = TestEval(source);
@@ -130,16 +134,17 @@ public class EvaluatorTests
     [InlineData("true + false", "Unknown operator: Boolean + Boolean")]
     [InlineData("5; true + false; 5;", "Unknown operator: Boolean + Boolean")]
     [InlineData("if (10 > 1) { true + false; }", "Unknown operator: Boolean + Boolean")]
-    [InlineData(@"
-        if (10 > 1) {
-            if (19 > 1) {
-                return true + false;
-            }
-            return 1;
-        }", "Unknown operator: Boolean + Boolean")]
+    [InlineData("""
+                if (10 > 1) {
+                    if (19 > 1) {
+                        return true + false;
+                    }
+                    return 1;
+                }
+                """, "Unknown operator: Boolean + Boolean")]
     [InlineData("foobar", "Identifier not found: foobar")]
     [InlineData("\"Hello\" - \"World\"", "Unknown operator: String - String")]
-    [InlineData(@"{""name"": ""Monkey""}[fn(x) { x }];", "Unusable as hash key: Function")]
+    [InlineData("""{"name": "Monkey"}[fn(x) { x }];""", "Unusable as hash key: Function")]
     public void TestErrorHandling(string source, string expected)
     {
         var evaluated = TestEval(source);
@@ -161,7 +166,7 @@ public class EvaluatorTests
     [Fact]
     public void TestFunctionObject()
     {
-        var source = "fn(x) { x + 2; };";
+        const string source = "fn(x) { x + 2; };";
         var evaluated = TestEval(source);
 
         Assert.IsType<MonkeyFunction>(evaluated);
@@ -169,7 +174,7 @@ public class EvaluatorTests
         Assert.Single(fn.Parameters);
         Assert.Equal("x", fn.Parameters[0].String);
 
-        var expectedBody = "(x + 2)";
+        const string expectedBody = "(x + 2)";
         Assert.Equal(expectedBody, fn.Body.String);
     }
 
@@ -186,13 +191,14 @@ public class EvaluatorTests
     }
 
     [Theory]
-    [InlineData(@"
-        let newAdder = fn(x) {
-            fn(y) { x + y };
-        };
-
-        let addTwo = newAdder(2);
-        addTwo(2);", 4)]
+    [InlineData("""
+                let newAdder = fn(x) {
+                    fn(y) { x + y };
+                };
+                
+                let addTwo = newAdder(2);
+                addTwo(2);
+                """, 4)]
     public void TestClosures(string source, long expected)
     {
         TestIntegerObject(TestEval(source), expected);
@@ -296,16 +302,17 @@ public class EvaluatorTests
     [Fact]
     public void TestHashLiterals()
     {
-        const string? source = @"
-            let two = ""two"";
-	        {
-                ""one"": 10 - 9,
-                two: 1 + 1,
-                ""thr"" + ""ee"": 6 / 2,
-                4: 4,
-                true: 5,
-                false: 6
-        	}";
+        const string? source = """
+                               let two = "two";
+                               {
+                                      "one": 10 - 9,
+                                      two: 1 + 1,
+                                      "thr" + "ee": 6 / 2,
+                                      4: 4,
+                                      true: 5,
+                                      false: 6
+                               }
+                               """;
 
         var evaluated = TestEval(source);
         Assert.IsType<MonkeyHash>(evaluated);
@@ -331,10 +338,10 @@ public class EvaluatorTests
     }
 
     [Theory]
-    [InlineData(@"{""foo"": 5}[""foo""]", 5L)]
-    [InlineData(@"{""foo"": 5}[""bar""]", null)]
-    [InlineData(@"let key = ""foo""; {""foo"": 5}[key]", 5L)]
-    [InlineData(@"{}[""foo""]", null)]
+    [InlineData("""{"foo": 5}["foo"]""", 5L)]
+    [InlineData("""{"foo": 5}["bar"]""", null)]
+    [InlineData("""let key = "foo"; {"foo": 5}[key]""", 5L)]
+    [InlineData("""{}["foo"]""", null)]
     [InlineData("{5: 5}[5]", 5L)]
     [InlineData("{true: 5}[true]", 5L)]
     [InlineData("{false: 5}[false]", 5L)]
@@ -347,7 +354,8 @@ public class EvaluatorTests
             TestNullObject(evaluated);
     }
 
-    private static void TestNullObject(IMonkeyObject obj) => Assert.Equal(Evaluator.Null, obj);
+    private static void TestNullObject(IMonkeyObject obj) =>
+        Assert.Equal(Evaluator.Null, obj);
 
     private static IMonkeyObject TestEval(string source)
     {

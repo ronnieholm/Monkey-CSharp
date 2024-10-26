@@ -183,19 +183,13 @@ public class Lexer
         return tok;
     }
 
-    private TokenType LookupIdent(string ident)
-    {
-        return _keywords.ContainsKey(ident)
-            ? _keywords[ident]
-            : TokenType.Ident;
-    }
+    private TokenType LookupIdent(string ident) => 
+        _keywords.GetValueOrDefault(ident, TokenType.Ident);
 
-    private char PeekChar()
-    {
-        return _readPosition >= _source.Length
+    private char PeekChar() =>
+        _readPosition >= _source.Length
             ? '\0'
             : _source[_readPosition];
-    }
 
     private void ReadChar()
     {

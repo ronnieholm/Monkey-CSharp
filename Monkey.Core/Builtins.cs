@@ -22,11 +22,12 @@ public static class MonkeyBuiltins
     {
         if (args.Count != 1)
             return new MonkeyError($"Wrong number of arguments. Got={args.Count}, want=1");
-        if (args[0] is MonkeyString s)
-            return new MonkeyInteger(s.Value.Length);
-        if (args[0] is MonkeyArray a)
-            return new MonkeyInteger(a.Elements.Count);
-        return new MonkeyError($"Argument to 'len' not supported. Got {args[0].Type}");
+        return args[0] switch
+        {
+            MonkeyString s => new MonkeyInteger(s.Value.Length),
+            MonkeyArray a => new MonkeyInteger(a.Elements.Count),
+            _ => new MonkeyError($"Argument to 'len' not supported. Got {args[0].Type}")
+        };
     }
 
     private static IMonkeyObject First(List<IMonkeyObject> args)

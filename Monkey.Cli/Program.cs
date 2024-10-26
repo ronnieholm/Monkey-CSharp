@@ -8,18 +8,21 @@ namespace Monkey.Cli;
 
 internal static class Program
 {
-    private const string MonkeyFace= @"                 __,__
-        .--.  .-""     ""-.  .--.
-       / .. \/   .-. .-. \/ .. \
-       | |  '|  /   Y   \ |'  | |
-       | \   \  \ 0 | 0 / /   / |
-        \ '- ,\.-""""""""""""""-./, -' /
-         ''-' /_   ^ ^   _\ '-''
-             |  \._   _./  |
-             \   \ '~' /   /
-              '._ '-=-' _.'
-                 '-----'
-        ";
+    private const string MonkeyFace= 
+        """"""""
+                         __,__
+                .--.  .-"     "-.  .--.
+               / .. \/   .-. .-. \/ .. \
+               | |  '|  /   Y   \ |'  | |
+               | \   \  \ 0 | 0 / /   / |
+                \ '- ,\.-"""""""-./, -' /
+                 ''-' /_   ^ ^   _\ '-''
+                     |  \._   _./  |
+                     \   \ '~' /   /
+                      '._ '-=-' _.'
+                         '-----'
+                
+        """""""";
 
     private static void Main(string[] args)
     {
@@ -33,7 +36,7 @@ internal static class Program
         }
 
         // The environment must survive across inputs and remain for as long
-        // as the REPL is running. Otherwise it wouldn't be possible for
+        // as the REPL is running. Otherwise, it wouldn't be possible for
         // variables and functions to survive across inputs.
         var env = new MonkeyEnvironment();
         while (true)

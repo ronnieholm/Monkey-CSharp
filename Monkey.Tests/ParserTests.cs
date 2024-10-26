@@ -281,7 +281,7 @@ public class ParserTests
     }
 
     [Theory]
-    [InlineData(@"{""one"": 1, ""two"": 2, ""three"": 3}")]
+    [InlineData("""{"one": 1, "two": 2, "three": 3}""")]
     public void TestParsingHashLiteralsStringKeys(string source)
     {
         var p = SetupProgram(source);
@@ -315,7 +315,7 @@ public class ParserTests
     }
 
     [Theory]
-    [InlineData(@"{""one"": 0 + 1, ""two"": 10 - 8, ""three"": 15 / 3}")]
+    [InlineData("""{"one": 0 + 1, "two": 10 - 8, "three": 15 / 3}""")]
     public void TestParsingHashLiteralsWithExpressions(string source)
     {
         var p = SetupProgram(source);
@@ -338,7 +338,7 @@ public class ParserTests
         }
     }
 
-    private void TestIntegerLiteral(Expression il, long value)
+    private static void TestIntegerLiteral(Expression il, long value)
     {
         var lit = Assert.IsType<IntegerLiteral>(il);
         Assert.Equal(lit.Value, value);
@@ -352,20 +352,26 @@ public class ParserTests
         Assert.Equal(value, ident.TokenLiteral);
     }
 
-    private void TestLiteralExpression<T>(Expression expr, T expected)
+    private static void TestLiteralExpression<T>(Expression expr, T expected)
     {
         if (expected == null) throw new ArgumentNullException(nameof(expected));
-        if (expected is long i)
-            TestIntegerLiteral(expr, i);
-        else if (expected is string s)
-            TestIdentifier(expr, s);
-        else if (expected is bool b)
-            TestBooleanLiteral(expr, b);
-        else
-            throw new Exception($"Unsupported type: {expected.GetType()}");
+        switch (expected)
+        {
+            case long i:
+                TestIntegerLiteral(expr, i);
+                break;
+            case string s:
+                TestIdentifier(expr, s);
+                break;
+            case bool b:
+                TestBooleanLiteral(expr, b);
+                break;
+            default:
+                throw new Exception($"Unsupported type: {expected.GetType()}");
+        }
     }
 
-    private void TestInfixExpression<TLeft, TRight>(Expression expr, TLeft left, string op, TRight right)
+    private static void TestInfixExpression<TLeft, TRight>(Expression expr, TLeft left, string op, TRight right)
     {
         var opExpr = Assert.IsType<InfixExpression>(expr);
         TestLiteralExpression(opExpr.Left, left);

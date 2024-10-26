@@ -19,7 +19,6 @@ public class ParserTracer(bool withTracing)
 {
     private const char TraceIdentPlaceholder = '\t';
     private static int _traceLevel;
-    private readonly bool _withTracing = withTracing;
 
     private static void IncIdent() => _traceLevel++;
     private static void DecIdent() => _traceLevel--;
@@ -27,7 +26,7 @@ public class ParserTracer(bool withTracing)
 
     private void TracePrint(string message)
     {
-        if (_withTracing)
+        if (withTracing)
             Console.WriteLine($"{IdentLevel()}{message}");
     }
 
@@ -56,7 +55,7 @@ public class Parser
     // tokens. We need _curToken, the current token under examination, to
     // decide what to do next, and we need _peekToken to guide the decision
     // in case _curToken doesn't provide us with enough information, e.g.,
-    // with source "5;", _curToken is Int and we require _peekToken to
+    // with source "5;", _curToken is Int, and we require _peekToken to
     // decide if we're at the end of the line or at the start of an
     // arithmetic expression. This implements a parser with one token
     // lookahead.
@@ -161,7 +160,7 @@ public class Parser
             // The alternative would be for ParseX() methods to immediately
             // stop parsing and signal a parser error. But that wouldn't
             // allow collecting multiple errors to improve the user
-            // experience. Instead parsing would halt on the first error. As
+            // experience. Instead, parsing would halt on the first error. As
             // an example, ExpectPeek() returns null if the expected token
             // isn't found _and_ adds an error message to the Errors
             // collection. That null bubbles up to ParseStatement() which
@@ -236,7 +235,7 @@ public class Parser
         _tracer.Trace(nameof(ParseExpressionStatement));
         var token = _curToken;
 
-        // Pass in lowest precedence since we haven't parsed anything yet.
+        // Pass in the lowest precedence since we haven't parsed anything yet.
         var expression = ParseExpression(PrecedenceLevel.Lowest);
         if (expression == null)
             return null;

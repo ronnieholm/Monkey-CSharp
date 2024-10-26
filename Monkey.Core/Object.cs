@@ -11,8 +11,8 @@ namespace Monkey.Core;
 
 using BuiltinFunction = Func<List<IMonkeyObject>, IMonkeyObject>;
 
-// Called Object in the book, but renamed to MonkeyObject so as to not
-// confuse it with System.Object.
+// Called Object in the book, but renamed to MonkeyObject to not confuse it
+// with System.Object.
 public interface IMonkeyObject
 {
     ObjectType Type { get; }
@@ -30,7 +30,7 @@ public interface IHashable
 // render this enum redundant. Monkey error messages, however, include
 // members of this enum in error messages. Relying on Object.GetType(),
 // details of the underlying implementation would leak into user error
-// messages. Hence we keep the Monkey types and .NET types separate.
+// messages. So we keep the Monkey types and .NET types separate.
 public enum ObjectType
 {
     None = 0,
