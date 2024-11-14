@@ -34,7 +34,7 @@ public record LetStatement(Token Token, Identifier Name, Expression Value) : Sta
 
 public record ReturnStatement(Token Token, Expression ReturnValue) : Statement(Token)
 {
-    public override string String => $"{TokenLiteral} {(ReturnValue.String)};";
+    public override string String => $"{TokenLiteral} {ReturnValue.String};";
 }
 
 public record ExpressionStatement(Token Token, Expression Expression) : Statement(Token)

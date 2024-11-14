@@ -21,7 +21,7 @@ public static class MonkeyBuiltins
     private static IMonkeyObject Len(List<IMonkeyObject> args)
     {
         if (args.Count != 1)
-            return new MonkeyError($"Wrong number of arguments. Got={args.Count}, want=1");
+            return new MonkeyError($"Wrong number of arguments. Got {args.Count}, want 1");
         return args[0] switch
         {
             MonkeyString s => new MonkeyInteger(s.Value.Length),
@@ -33,7 +33,7 @@ public static class MonkeyBuiltins
     private static IMonkeyObject First(List<IMonkeyObject> args)
     {
         if (args.Count != 1)
-            return new MonkeyError($"Wrong number of arguments. Got={args.Count}, want=1");
+            return new MonkeyError($"Wrong number of arguments. Got {args.Count}, want 1");
         if (args[0] is MonkeyArray arr)
             return arr.Elements.Count > 0 ? arr.Elements[0] : Evaluator.Null;
         return new MonkeyError($"Argument to 'first' must be Array. Got {args[0].Type}");
@@ -42,7 +42,7 @@ public static class MonkeyBuiltins
     private static IMonkeyObject Last(List<IMonkeyObject> args)
     {
         if (args.Count != 1)
-            return new MonkeyError($"Wrong number of arguments. Got={args.Count}, want=1");
+            return new MonkeyError($"Wrong number of arguments. Got {args.Count}, want 1");
         if (args[0] is not MonkeyArray arr)
             return new MonkeyError($"Argument to 'last' must be Array. Got {args[0].Type}");
         var length = arr.Elements.Count;
@@ -52,7 +52,7 @@ public static class MonkeyBuiltins
     private static IMonkeyObject Rest(List<IMonkeyObject> args)
     {
         if (args.Count != 1)
-            return new MonkeyError($"Wrong number of arguments. Got={args.Count}, want=1");
+            return new MonkeyError($"Wrong number of arguments. Got {args.Count}, want 1");
         if (args[0] is not MonkeyArray arr)
             return new MonkeyError($"Argument to 'last' must be Array. Got {args[0].Type}");
         var length = arr.Elements.Count;
@@ -64,7 +64,7 @@ public static class MonkeyBuiltins
     private static IMonkeyObject Push(List<IMonkeyObject> args)
     {
         if (args.Count != 2)
-            return new MonkeyError($"Wrong number of arguments. Got={args.Count}, want=2");
+            return new MonkeyError($"Wrong number of arguments. Got {args.Count}, want 2");
         if (args[0] is not MonkeyArray arr)
             return new MonkeyError($"Argument to 'push' must be Array. Got {args[0].Type}");
         var newElements = arr.Elements.Skip(0).ToList();

@@ -229,7 +229,7 @@ public class EvaluatorTests
     [InlineData("len(\"four\")", 4L)]
     [InlineData("len(\"hello world\")", 11L)]
     [InlineData("len(1)", "Argument to 'len' not supported. Got Integer")]
-    [InlineData("len(\"one\", \"two\")", "Wrong number of arguments. Got=2, want=1")]
+    [InlineData("len(\"one\", \"two\")", "Wrong number of arguments. Got 2, want 1")]
     [InlineData("len([1, 2, 3])", 3L)]
     [InlineData("len([])", 0L)]
     [InlineData("first([1, 2, 3])", 1L)]
@@ -290,7 +290,7 @@ public class EvaluatorTests
     [InlineData("let myArray = [1, 2, 3]; let i = myArray[0]; myArray[1]", 2L)]
     [InlineData("[1, 2, 3][3]", null)]
     [InlineData("[1, 2, 3][-1]", null)]
-    public void TestArrayIndexExpressions(string source, object expected)
+    public void TestArrayIndexExpressions(string source, object? expected)
     {
         var evaluated = TestEval(source);
         if (expected is long l)
@@ -345,7 +345,7 @@ public class EvaluatorTests
     [InlineData("{5: 5}[5]", 5L)]
     [InlineData("{true: 5}[true]", 5L)]
     [InlineData("{false: 5}[false]", 5L)]
-    public void TestHashIndexExpressions(string source, object expected)
+    public void TestHashIndexExpressions(string source, object? expected)
     {
         var evaluated = TestEval(source);
         if (expected is long l)
