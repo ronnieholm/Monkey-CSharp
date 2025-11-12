@@ -35,8 +35,8 @@ tests and [Examples](Examples) folder in this repository.
     $ cd Monkey-CSharp
     $ dotnet build
     $ dotnet test Monkey.Tests
-    $ dotnet run -p Monkey.Cli # Interactive REPL
-    $ dotnet run -p Monkey.Cli -- Examples/Fibonacci.monkey
+    $ dotnet run --project Monkey.Cli # Interactive REPL
+    $ dotnet run --project Monkey.Cli -- Examples/Fibonacci.monkey
 
 ## Resources
 
