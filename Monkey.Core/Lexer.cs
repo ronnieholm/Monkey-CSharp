@@ -175,8 +175,7 @@ public class Lexer
                 }
 
                 tok = new Token(TokenType.Illegal, _ch);
-                ReadChar();
-                return tok;
+                break;
         }
 
         ReadChar();
